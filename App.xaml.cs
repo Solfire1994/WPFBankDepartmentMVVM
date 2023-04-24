@@ -18,7 +18,7 @@ namespace WPFBankDepartmentMVVM
         {
             var services = new ServiceCollection();
             services.AddSingleton<MainWindowViewModel>();
-            services.AddTransient<AuthWindowViewModel>();
+            services.AddSingleton<AuthWindowViewModel>();
             services.AddTransient<AddNewClientViewModel>();
             services.AddTransient<ChangingLogViewModel>();
             services.AddTransient<ClientWindowViewModel>();
@@ -42,6 +42,7 @@ namespace WPFBankDepartmentMVVM
                 {
                     var model = s.GetRequiredService<AuthWindowViewModel>();
                     var window = new AuthWindow { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
                     return window;
                 });
 

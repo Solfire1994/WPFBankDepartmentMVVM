@@ -21,7 +21,7 @@
         </DockPanel>
         <Border Margin="5, 0, 5, 5" DockPanel.Dock="Bottom" BorderBrush="Black" BorderThickness="1">
             <StatusBar >
-                <Label Content="В системе рабоет Менеджер" />
+                <Label Content="{Binding StatusBar, UpdateSourceTrigger=PropertyChanged}" />
             </StatusBar>
         </Border>
         <UniformGrid Rows="1" DockPanel.Dock="Bottom" >

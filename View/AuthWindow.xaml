@@ -10,7 +10,7 @@
         Title="Окно авторизации" MaxHeight="200" MaxWidth="350" MinWidth="350" MinHeight="200" FontSize="15">
     <UniformGrid Columns="1">
         <Label Content="Войдите в систему" Margin="5" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-        <Button  Content="Консультант" Margin="5"/>
-        <Button  Content="Менеджер" Margin="5"/>
+        <Button  Content="Консультант" Margin="5" Command="{Binding AuthConsultantCommand}"/>
+        <Button  Content="Менеджер" Margin="5" Command="{Binding AuthManagerCommand}"/>
     </UniformGrid>
 </Window>

@@ -21,10 +21,8 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
                 window.Show();
                 return;
             }
-
             window = _Servises.GetRequiredService<MainWindow>();
             window.Closed += (_, _) => _MainWindow = null;
-
             _MainWindow = window;
             window.Show();
         }
@@ -37,14 +35,10 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
                 window.Show();
                 return;
             }
-
             window = _Servises.GetRequiredService<AuthWindow>();
             window.Closed += (_, _) => _AuthWindow = null;
-
             _AuthWindow = window;
-
-            window.ShowDialog();
-            
+            window.ShowDialog();            
         }
 
 

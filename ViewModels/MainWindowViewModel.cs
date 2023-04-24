@@ -12,7 +12,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class MainWindowViewModel : DialogViewModel
+    internal class MainWindowViewModel : DialogViewModel, IDisposable
     {
         #region New Work
 
@@ -20,8 +20,9 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         private const string pathClient = @"Clients.txt";
         private List<Client> workClientsList;
-        private readonly IUserDialog _UserDialog;
-        private readonly IMessageBus _MessageBus;
+        private readonly IUserDialog _UserDialog = null!;
+        private readonly IMessageBus _MessageBus = null!;
+        private readonly IDisposable _SubscriptionAuth = null!;
 
         #region Видимый список клиентов
         private ObservableCollection<Client> viewClientList;
@@ -33,19 +34,42 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Тип сотрудника работающий в системе
+        private Employee employeeType;
 
+        public Employee EmployeeType
+        {
+            get { return employeeType; }
+            set 
+            { 
+                Set(ref employeeType, value, nameof(EmployeeType));
+                ChangingEmployeeType();
+            }
+
+        }
+        #endregion
+
+        #region Данные статус бара
+        private string statusBar = "Авторизация не выполнена";
+
+        public string StatusBar
+        {
+            get { return statusBar; }
+            set => Set(ref statusBar, value, nameof(StatusBar));            
+        }
+        #endregion
 
         #endregion
 
         #region Команды
 
-        #region Сохранение изменений
+        #region Открытие окна авторизации
         public ICommand OpenAuthWindowCommand { get; }
         private bool CanOpenAuthWindowCommandExecute(object p) => true;
 
         private void OnOpenAuthWindowCommandExecuted(object p)
         {
-            _UserDialog.OpenAuthWindow();
+            _UserDialog.OpenAuthWindow();           
         }
         #endregion
 
@@ -110,6 +134,14 @@ namespace WPFBankDepartmentMVVM.ViewModels
             return ViewClientList;
         }
 
+        #region Метод изменения данных связаных с авторизацией
+        private void ChangingEmployeeType()
+        {
+            if (employeeType is Manager) StatusBar = "В системе работает менеджер";
+            if (employeeType is Consultant) StatusBar = "В системе работает консультант";
+        }
+
+        #endregion
 
         #endregion
 
@@ -133,6 +165,14 @@ namespace WPFBankDepartmentMVVM.ViewModels
         {
             _UserDialog = userDialog;
             _MessageBus = messageBus;
+            _SubscriptionAuth = messageBus.RegesterHandler<Employee>(OnReceiveMessage);
+        }
+
+        public void Dispose() => _SubscriptionAuth.Dispose();
+
+        private void OnReceiveMessage(Employee message)
+        {
+            EmployeeType = message;
         }
         #endregion
 
@@ -325,11 +365,13 @@ namespace WPFBankDepartmentMVVM.ViewModels
             viewClientList = sortedList2;
             OnPropertyChanged("ViewClientList");
         }
+
+        
         #endregion
 
         #region Repository
 
-        
+
 
         public Employee employee { get; }
         
