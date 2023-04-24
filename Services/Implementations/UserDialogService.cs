@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WPFBankDepartmentMVVM.View;
 
 namespace WPFBankDepartmentMVVM.Services.Implementations
 {
-    class UserDialog : IUserDialog
+    class UserDialogService : IUserDialog
     {
         private readonly IServiceProvider _Servises;
-        public UserDialog(IServiceProvider servises) => _Servises = servises;
+        public UserDialogService(IServiceProvider servises) => _Servises = servises;
 
         private MainWindow? _MainWindow;
         public void OpenMainWindow()
@@ -41,7 +42,7 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             window.Closed += (_, _) => _AuthWindow = null;
 
             _AuthWindow = window;
-            _MainWindow.Hide();
+
             window.ShowDialog();
             
         }

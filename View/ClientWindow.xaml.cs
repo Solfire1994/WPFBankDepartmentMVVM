@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace WPFBankDepartmentMVVM
+namespace WPFBankDepartmentMVVM.View
 {
     /// <summary>
-    /// Interaction logic for AddNewClient.xaml
+    /// Interaction logic for ClientWindow.xaml
     /// </summary>
-    public partial class AddNewClient : Window
+    public partial class ClientWindow : Window
     {
-        public AddNewClient()
+        public ClientWindow()
         {
             InitializeComponent();
         }

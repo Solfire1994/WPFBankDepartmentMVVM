@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace WPFBankDepartmentMVVM
+namespace WPFBankDepartmentMVVM.View
 {
     /// <summary>
-    /// Interaction logic for TransferWindow.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class TransferWindow : Window
+    public partial class MainWindow : Window
     {
-        public TransferWindow()
+        public MainWindow()
         {
             InitializeComponent();
         }

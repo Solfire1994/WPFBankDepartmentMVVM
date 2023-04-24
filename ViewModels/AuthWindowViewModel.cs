@@ -7,7 +7,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class AuthWindowViewModel : ViewModelBase
+    internal class AuthWindowViewModel : DialogViewModel
     {
     }
 }

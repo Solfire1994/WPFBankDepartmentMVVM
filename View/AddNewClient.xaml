@@ -1,11 +1,11 @@
-﻿<Window x:Class="WPFBankDepartmentMVVM.AddNewClient"
+﻿<Window x:Class="WPFBankDepartmentMVVM.View.AddNewClient"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPFBankDepartmentMVVM"
+        xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
         mc:Ignorable="d"
-        Title="AddNewClient" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14" FontWeight="SemiBold">
+       Title="AddNewClient" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14" FontWeight="SemiBold">
     <Grid>
         <Border BorderBrush="Black" Margin="5" BorderThickness="3">
             <Grid>
@@ -46,7 +46,7 @@
                 </Border>
                 <Border Grid.Row="11" BorderBrush="Black" Margin="5" BorderThickness="1">
                     <UniformGrid Rows="1">
-                    <Button Content="Добавить" Margin="0, 0, 2.5, 0"/>
+                        <Button Content="Добавить" Margin="0, 0, 2.5, 0"/>
                         <Button Content="Закрыть" Margin="2.5, 0, 0, 0"/>
                     </UniformGrid>
                 </Border>

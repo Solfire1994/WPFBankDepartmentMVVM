@@ -7,7 +7,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class ChangingLogViewModel : ViewModelBase
+    internal class ChangingLogViewModel : DialogViewModel
     {
     }
 }

@@ -12,7 +12,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class MainWindowViewModel : ViewModelBase
+    internal class MainWindowViewModel : DialogViewModel
     {
         #region New Work
 
@@ -21,6 +21,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private const string pathClient = @"Clients.txt";
         private List<Client> workClientsList;
         private readonly IUserDialog _UserDialog;
+        private readonly IMessageBus _MessageBus;
 
         #region Видимый список клиентов
         private ObservableCollection<Client> viewClientList;
@@ -128,9 +129,10 @@ namespace WPFBankDepartmentMVVM.ViewModels
             //DeleteClientCommand = new BaseCommand(OnDeleteClientCommandExecuted, CanDeleteClientCommandExecute);
         }
 
-        public MainWindowViewModel(IUserDialog userDialog) : this()
+        public MainWindowViewModel(IUserDialog userDialog, IMessageBus messageBus) : this()
         {
             _UserDialog = userDialog;
+            _MessageBus = messageBus;
         }
         #endregion
 

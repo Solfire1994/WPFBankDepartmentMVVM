@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace WPFBankDepartmentMVVM
+namespace WPFBankDepartmentMVVM.View
 {
     /// <summary>
-    /// Interaction logic for ChangingLog.xaml
+    /// Interaction logic for AuthWindow.xaml
     /// </summary>
-    public partial class ChangingLog : Window
+    public partial class AuthWindow : Window
     {
-        public ChangingLog()
+        public AuthWindow()
         {
             InitializeComponent();
         }

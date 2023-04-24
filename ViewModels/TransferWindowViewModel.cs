@@ -7,7 +7,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class TransferWindowViewModel : ViewModelBase
+    internal class TransferWindowViewModel : DialogViewModel
     {
     }
 }

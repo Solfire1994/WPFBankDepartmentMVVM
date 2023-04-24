@@ -3,6 +3,7 @@ using System;
 using System.Windows;
 using WPFBankDepartmentMVVM.Services;
 using WPFBankDepartmentMVVM.Services.Implementations;
+using WPFBankDepartmentMVVM.View;
 using WPFBankDepartmentMVVM.ViewModels;
 
 namespace WPFBankDepartmentMVVM
@@ -23,7 +24,8 @@ namespace WPFBankDepartmentMVVM
             services.AddTransient<ClientWindowViewModel>();
             services.AddTransient<TransferWindowViewModel>();
 
-            services.AddSingleton<IUserDialog, UserDialog>();
+            services.AddSingleton<IUserDialog, UserDialogService>();
+            services.AddSingleton<IMessageBus, MessageBusService>();
 
             #region Регистрация окон
             services.AddTransient(
@@ -31,6 +33,7 @@ namespace WPFBankDepartmentMVVM
             {
                 var model = s.GetRequiredService<MainWindowViewModel>();
                 var window = new MainWindow { DataContext = model };
+                model.DialogComplete += (_, _) => window.Close();
                 return window;
             });
 
