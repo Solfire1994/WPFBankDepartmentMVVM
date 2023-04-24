@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
+using WPFBankDepartmentMVVM.Services;
+using WPFBankDepartmentMVVM.Services.Implementations;
 using WPFBankDepartmentMVVM.ViewModels;
 
 namespace WPFBankDepartmentMVVM
@@ -21,7 +23,66 @@ namespace WPFBankDepartmentMVVM
             services.AddTransient<ClientWindowViewModel>();
             services.AddTransient<TransferWindowViewModel>();
 
+            services.AddSingleton<IUserDialog, UserDialog>();
+
+            #region Регистрация окон
+            services.AddTransient(
+                s =>
+            {
+                var model = s.GetRequiredService<MainWindowViewModel>();
+                var window = new MainWindow { DataContext = model };
+                return window;
+            });
+
+            services.AddTransient(
+                s =>
+                {
+                    var model = s.GetRequiredService<AuthWindowViewModel>();
+                    var window = new AuthWindow { DataContext = model };
+                    return window;
+                });
+
+            services.AddTransient(
+                s =>
+                {
+                    var model = s.GetRequiredService<AddNewClientViewModel>();
+                    var window = new AddNewClient { DataContext = model };
+                    return window;
+                });
+
+            services.AddTransient(
+                s =>
+                {
+                    var model = s.GetRequiredService<ChangingLogViewModel>();
+                    var window = new ChangingLog { DataContext = model };
+                    return window;
+                });
+
+            services.AddTransient(
+                s =>
+                {
+                    var model = s.GetRequiredService<ClientWindowViewModel>();
+                    var window = new ClientWindow { DataContext = model };
+                    return window;
+                });
+
+            services.AddTransient(
+                s =>
+                {
+                    var model = s.GetRequiredService<TransferWindowViewModel>();
+                    var window = new TransferWindow { DataContext = model };
+                    return window;
+                });
+
+            #endregion
+
             return services;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            Services.GetRequiredService<IUserDialog>().OpenMainWindow();
         }
     }
 

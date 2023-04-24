@@ -9,9 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Command\Base\" />
-    <Folder Include="Models\" />
     <Folder Include="User Controls\" />
-    <Folder Include="Services\Implementations\" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
 
