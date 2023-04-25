@@ -11,7 +11,8 @@
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="5">
             <Button DockPanel.Dock="Right" Content="Авторизация" Width="100" Margin="2.5, 0, 0, 0" Command="{Binding OpenAuthWindowCommand}"/>
-            <ComboBox DockPanel.Dock="Right"  Width="250" VerticalContentAlignment="Center" Margin="0, 0, 2.5, 0">
+            <ComboBox DockPanel.Dock="Right"  Width="250" VerticalContentAlignment="Center"  Margin="0, 0, 2.5, 0"
+                      SelectedIndex="{Binding SortingComboBox, UpdateSourceTrigger=PropertyChanged}">
                 <TextBlock>Сортировка по умолчанию</TextBlock>
                 <TextBlock>Сортировка по фамилии А -> Я</TextBlock>
                 <TextBlock>Сортировка по фамилии Я -> А</TextBlock>
@@ -25,12 +26,19 @@
             </StatusBar>
         </Border>
         <UniformGrid Rows="1" DockPanel.Dock="Bottom" >
-            <Button Content="Добавить" Margin="5, 5, 2.5, 5"/>
-            <Button Content="Удалить" Margin="2.5, 5, 2.5, 5"/>
-            <Button Content="Выбрать" Margin="2.5, 5, 5, 5"/>
+            <Button Content="Добавить" Margin="5, 5, 2.5, 5" Command="{Binding OpenAddNewClientWindowCommand}"/>
+            <Button Content="Удалить" Margin="2.5, 5, 2.5, 5" Command="{Binding DeleteClientCommand}" 
+                    CommandParameter="{Binding SelectedClient, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Выбрать" Margin="2.5, 5, 5, 5" Command="{Binding OpenClientWindowCommand}" 
+                    CommandParameter="{Binding SelectedClient, UpdateSourceTrigger=PropertyChanged}"/>
         </UniformGrid>
         <Border Margin="5, 5, 5, 5" BorderBrush="Black" BorderThickness="1">
-            <ListBox ItemsSource="{Binding ViewClientList, UpdateSourceTrigger=PropertyChanged}" FontSize="15" Background="LightGray">
+            <Grid>
+            <Label Content="Авторизация не пройдена, список клиентов не отображен." 
+                   Visibility="{Binding AuthLabel, UpdateSourceTrigger=PropertyChanged}" />
+            <ListBox ItemsSource="{Binding ViewClientList, UpdateSourceTrigger=PropertyChanged}" 
+                     FontSize="15" Background="LightGray"  Visibility="{Binding AuthList, UpdateSourceTrigger=PropertyChanged}"
+                     SelectedItem="{Binding SelectedClient, UpdateSourceTrigger=PropertyChanged}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border  BorderBrush="Black" Margin="5" MinWidth="170"  BorderThickness="1" CornerRadius="10" Background="White">
@@ -39,17 +47,20 @@
                                     <ColumnDefinition Width="200" SharedSizeGroup="LastName"/>
                                     <ColumnDefinition Width="200" SharedSizeGroup="FirstName"/>
                                     <ColumnDefinition Width="200" SharedSizeGroup="MiddleName"/>
-                                    <ColumnDefinition Width="150" SharedSizeGroup="Phone"/>
+                                    <ColumnDefinition Width="200" SharedSizeGroup="Phone"/>
+                                    <ColumnDefinition Width="150" SharedSizeGroup="Passport"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"  Text="{Binding lastName}"/>
                                 <TextBlock Grid.Column="1"  Text="{Binding firstName}"/>
                                 <TextBlock Grid.Column="2"  Text="{Binding middleName}"/>
                                 <TextBlock Grid.Column="3"  Text="{Binding phoneNumber}"/>
+                                <TextBlock Grid.Column="4"  Text="{Binding passportNumber}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+            </Grid>
         </Border>
     </DockPanel>
 </Window>

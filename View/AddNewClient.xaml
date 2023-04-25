@@ -4,11 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
+        xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
+        d:DataContext="{d:DesignInstance vm:AddNewClientViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-       Title="AddNewClient" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14" FontWeight="SemiBold">
+       Title="Окно добавления нового клиента" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14" FontWeight="SemiBold"
+        VerticalAlignment="Center">
     <Grid>
         <Border BorderBrush="Black" Margin="5" BorderThickness="3">
-            <Grid>
+            <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.4*"/>
                     <RowDefinition Height="0.4*"/>
@@ -26,28 +29,33 @@
                 <TextBlock Grid.Row="0" Margin="5" Text="Введите данные нового клиента:" TextAlignment="Center" />
                 <TextBlock Grid.Row="1" Margin="5" Text="Фамилия клиента" TextAlignment="Center" />
                 <Border Grid.Row="2" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" BorderThickness="0" 
+                             HorizontalContentAlignment="Center"/>
                 </Border>
                 <TextBlock Grid.Row="3" Margin="5" Text="Имя клиента" TextAlignment="Center" />
                 <Border Grid.Row="4" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox />
+                    <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" BorderThickness="0" 
+                             HorizontalContentAlignment="Center"/>
                 </Border>
                 <TextBlock Grid.Row="5" Margin="5" Text="Отчество клиента" TextAlignment="Center"/>
                 <Border Grid.Row="6" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox />
+                    <TextBox Text="{Binding MiddleName, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" BorderThickness="0" 
+                             HorizontalContentAlignment="Center"/>
                 </Border>
                 <TextBlock Grid.Row="7" Margin="5" Text="Номер телефона" TextAlignment="Center"/>
                 <Border Grid.Row="8" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" BorderThickness="0" 
+                             HorizontalContentAlignment="Center"/>
                 </Border>
                 <TextBlock Grid.Row="9" Margin="5" Text="Серия и номер паспорта" TextAlignment="Center"/>
                 <Border Grid.Row="10" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding PassportNumber, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" BorderThickness="0" 
+                             HorizontalContentAlignment="Center"/>
                 </Border>
                 <Border Grid.Row="11" BorderBrush="Black" Margin="5" BorderThickness="1">
                     <UniformGrid Rows="1">
-                        <Button Content="Добавить" Margin="0, 0, 2.5, 0"/>
-                        <Button Content="Закрыть" Margin="2.5, 0, 0, 0"/>
+                        <Button Content="Добавить" Margin="0, 0, 2.5, 0" Command="{Binding AddNewClientCommand}"/>
+                        <Button Content="Закрыть" Margin="2.5, 0, 0, 0" Command="{Binding CloseCommand}"/>
                     </UniformGrid>
                 </Border>
             </Grid>

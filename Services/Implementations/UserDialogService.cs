@@ -41,6 +41,19 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             window.ShowDialog();            
         }
 
+        private AddNewClient? _AddNewClient;
+        public void OpenAddNewClientWindow()
+        {
+            if (_AddNewClient is { } window)
+            {
+                window.ShowDialog();
+                return;
+            }
+            window = _Servises.GetRequiredService<AddNewClient>();
+            window.Closed += (_, _) => _AddNewClient = null;
+            _AddNewClient = window;
+            window.ShowDialog();
+        }
 
         public void OpenChangedLogWindow()
         {
@@ -59,9 +72,6 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public void OpenAddClientWindow()
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

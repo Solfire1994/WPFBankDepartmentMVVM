@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using WPFBankDepartmentMVVM.Command.Base;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
@@ -14,7 +10,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
     internal class AuthWindowViewModel : DialogViewModel
     {
         private readonly IMessageBus _MessageBus = null!;
-        //private readonly IDisposable _SubscriptionAuth = null!;
         private Employee _employeeType = null!;
 
         #region Вход как консультант
@@ -48,6 +43,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             OnDialogComplete(EventArgs.Empty);
         }
         #endregion
+
         public AuthWindowViewModel()
         {
             AuthConsultantCommand = new BaseCommand(OnAuthConsultantCommandExecuted, CanAuthConsultantCommandExecute);
@@ -57,14 +53,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
         public AuthWindowViewModel(IMessageBus messageBus) : this()
         {
             _MessageBus = messageBus;
-            //_SubscriptionAuth = _MessageBus.RegesterHandler<Employee>(OnReceiveMessage);
         }
-
-        //public void Dispose() => _SubscriptionAuth.Dispose();
-
-        //private void OnReceiveMessage(Employee message)
-        //{
-        //    _employeeType = message;
-        //}
     }
 }

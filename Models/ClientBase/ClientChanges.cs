@@ -16,6 +16,13 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
         public string newChangedData { get; }
         public string changedEmployee { get; }
 
+        public ClientChanges()
+        {
+            changedDataType = "Клиент создан";
+            lastUpdate = DateTime.Now;
+            changedEmployee = "Клиента создал Менеджер";
+        }
+
         public ClientChanges(string changedDataType, string oldChangedData, string newChangedData, Employee changedEmployee)
         {
             this.changedDataType = changedDataType;

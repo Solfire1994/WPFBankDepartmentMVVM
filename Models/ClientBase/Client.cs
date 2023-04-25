@@ -9,7 +9,7 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
 {
     internal class Client
     {
-        public int id { get; }
+        public int id { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string middleName { get; set; }

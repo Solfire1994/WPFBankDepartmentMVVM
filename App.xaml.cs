@@ -51,6 +51,7 @@ namespace WPFBankDepartmentMVVM
                 {
                     var model = s.GetRequiredService<AddNewClientViewModel>();
                     var window = new AddNewClient { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
                     return window;
                 });
 
