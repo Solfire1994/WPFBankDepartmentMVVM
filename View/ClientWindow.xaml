@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
+        xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
+        d:DataContext="{d:DesignInstance vm:ClientWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Title="ClientWindow" MinHeight="450" MinWidth="800" FontSize="14">
     <Grid>
@@ -30,26 +32,41 @@
                 <TextBlock Grid.Row="0" Margin="5" Text="Данные выбранного клиента:" TextAlignment="Center" />
                 <TextBlock Grid.Row="1" Margin="5" Text="Фамилия" TextAlignment="Center" />
                 <Border Grid.Row="2" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding SelectedClient.lastName, UpdateSourceTrigger=PropertyChanged}" 
+                             VerticalAlignment="Center" BorderThickness="0" FontWeight="Bold" FontSize="15" 
+                             HorizontalContentAlignment="Center" 
+                             IsReadOnly="{Binding EmployeeType.AccessRights.lastNameChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <TextBlock Grid.Row="3" Margin="5" Text="Имя" TextAlignment="Center" />
                 <Border Grid.Row="4" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox />
+                    <TextBox Text="{Binding SelectedClient.firstName, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center" BorderThickness="0" FontWeight="Bold" FontSize="15" 
+                             HorizontalContentAlignment="Center" 
+                             IsReadOnly="{Binding EmployeeType.AccessRights.firstNameChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <TextBlock Grid.Row="5" Margin="5" Text="Отчество" TextAlignment="Center"/>
                 <Border Grid.Row="6" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox />
+                    <TextBox Text="{Binding SelectedClient.middleName, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center" BorderThickness="0" FontWeight="Bold" FontSize="15" 
+                             HorizontalContentAlignment="Center" 
+                             IsReadOnly="{Binding EmployeeType.AccessRights.middleNameChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <TextBlock Grid.Row="7" Margin="5" Text="Номер телефона" TextAlignment="Center"/>
                 <Border Grid.Row="8" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding SelectedClient.phoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center" BorderThickness="0" FontWeight="Bold" FontSize="15" 
+                             HorizontalContentAlignment="Center" 
+                             IsReadOnly="{Binding EmployeeType.AccessRights.phoneNumberChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <TextBlock Grid.Row="9" Margin="5" Text="Серия и номер паспорта" TextAlignment="Center"/>
                 <Border Grid.Row="10" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <TextBox/>
+                    <TextBox Text="{Binding SelectedClient.passportNumber, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center" BorderThickness="0" FontWeight="Bold" FontSize="15" 
+                             HorizontalContentAlignment="Center" 
+                             IsReadOnly="{Binding EmployeeType.AccessRights.passpoortNumberChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <Border Grid.Row="11" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <Button Content="Сохранить изменения" Margin="5"/>
+                    <Button Content="Сохранить изменения" Margin="5" Command="{Binding SaveChangingClientCommand}" />
                 </Border>
             </Grid>
         </Border>

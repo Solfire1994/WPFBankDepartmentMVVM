@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Accessibility;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -15,8 +16,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
 {
     internal class MainWindowViewModel : DialogViewModel, IDisposable
     {
-        #region New Work
-
         #region Свойста и поля
 
         private const string pathClient = @"Clients.txt";
@@ -107,15 +106,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Измененный клиент??????????
-        private Client changingClient;
-
-        public Client ChangingClient
-        {
-            get { return changingClient; }
-            set => Set(ref changingClient, value, nameof(ChangingClient));
-        }
-        #endregion
+        
 
         #endregion
 
@@ -160,6 +151,9 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         private void OnOpenClientWindowCommandExecuted(object p)
         {
+            _UserDialog.CreateClientWindow();
+            _MessageBus.Send((Client)p);
+            _MessageBus.Send(EmployeeType);
             _UserDialog.OpenClientWindow();
         }
         #endregion
@@ -291,10 +285,18 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Изменение данных клиента ??????????????       
+        #region Изменение данных клиента??????       
         private void ChangeClient(Client client)
         {
-            //changingClient = message;
+            int i = 0 ;
+            foreach (Client _client in workClientsList)
+            {
+                if (_client.id != client.id) { i++; continue; }
+                workClientsList[i] = client;
+                PrintInFile();
+                GetViewClientList();
+                return;
+            }
         }
         #endregion
 
@@ -375,61 +377,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _SubscriptionClient = messageBus.RegesterHandler<Client>(OnReceiveClient);
         }
         #endregion
-
-        #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #region Repository
-
-
-
-        ///// <summary>
-        ///// Метод по изменению данных списка клиентов
-        ///// </summary>
-        ///// <returns></returns>
-        //public void ChangeClient(Client client)
-        //{
-        //    clients = employee.ChangeClients(client, clients);
-        //    PrintInFile();
-        //}
-
-
-        ///// <summary>
-        ///// Метод по удалению клиента
-        ///// </summary>
-        ///// <returns></returns>
-        //public void DeleteClient(Client client)
-        //{
-        //    foreach (var _client in clients)
-        //    {
-        //        if (_client.id == client.id)
-        //        {
-        //            clients.Remove(_client);
-        //            break;
-        //        }
-        //    }
-        //    PrintInFile();
-        //}
-
         
-
-        #endregion
-
     }
 }

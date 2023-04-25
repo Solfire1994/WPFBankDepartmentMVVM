@@ -12,6 +12,7 @@ namespace WPFBankDepartmentMVVM.Services
         void OpenAuthWindow();
         void OpenAddNewClientWindow();
         void OpenChangedLogWindow();
+        void CreateClientWindow();
         void OpenClientWindow();
         void OpenTransferWindow();
     }

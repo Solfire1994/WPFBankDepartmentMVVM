@@ -8,19 +8,7 @@ using WPFBankDepartmentMVVM.Models.ClientBase;
 namespace WPFBankDepartmentMVVM.Models.EmployeeBase
 {
     internal class Consultant : Employee
-    {
-        public override List<Client> ViewClients(List<Client> clients)
-        {
-            List<Client> clientsForConsultant = new List<Client>();
-            string passportForConsultant;
-            foreach (Client client in clients)
-            {
-                passportForConsultant = new string('*', client.passportNumber.Length);
-                clientsForConsultant.Add(new Client(client.id, client.lastName, client.firstName,
-                    client.middleName, client.phoneNumber, passportForConsultant, client.ClientChanges));
-            }
-            return clientsForConsultant;
-        }
+    {     
 
         public override List<Client> ChangeClients(Client client, List<Client> clients)
         {

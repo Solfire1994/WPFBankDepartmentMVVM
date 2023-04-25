@@ -55,15 +55,29 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             window.ShowDialog();
         }
 
+        private ClientWindow? _ClientWindow;
+        public void CreateClientWindow()
+        {
+            if (_ClientWindow is { } window)
+            {
+                window.ShowDialog();
+                return;
+            }
+            window = _Servises.GetRequiredService<ClientWindow>();
+            window.Closed += (_, _) => _ClientWindow = null;
+            _ClientWindow = window;
+        }
+        public void OpenClientWindow()
+        {
+            _ClientWindow.ShowDialog();
+        }
+
         public void OpenChangedLogWindow()
         {
             throw new NotImplementedException();
         }
 
-        public void OpenClientWindow()
-        {
-            throw new NotImplementedException();
-        }
+        
 
         
 

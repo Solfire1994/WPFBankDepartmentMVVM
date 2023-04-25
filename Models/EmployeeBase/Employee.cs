@@ -10,10 +10,7 @@ namespace WPFBankDepartmentMVVM.Models.EmployeeBase
     internal abstract class Employee
     {
         public AccessRights AccessRights { get; protected set; }
-        public virtual List<Client> ViewClients(List<Client> clients)
-        {
-            return clients;
-        }
+        
 
         public virtual List<Client> ChangeClients(Client client, List<Client> clients)
         {
@@ -27,12 +24,7 @@ namespace WPFBankDepartmentMVVM.Models.EmployeeBase
             }
             return clients;
         }
-        public virtual Client AddClients(int id)
-        {
-            string fieldClient = $"Новый клиент_{id} заполните данные";
-            Client client = new Client(id, fieldClient, fieldClient, fieldClient, fieldClient, fieldClient);
-            return client;
-        }
+        
 
         protected void ChangeData(Client oldClientData, Client newClientData, int changedDataType)
         {

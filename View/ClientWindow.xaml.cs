@@ -23,5 +23,6 @@ namespace WPFBankDepartmentMVVM.View
         {
             InitializeComponent();
         }
+
     }
 }
