@@ -150,7 +150,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         private void OnDeleteClientCommandExecuted(object p)
         {
-           
+            DeleteClient((Client)p);
         }
         #endregion
 
@@ -182,7 +182,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 workClientsList.Add(new Client(int.Parse(result[0]), result[1], result[2],
                     result[3], result[4], result[5]));
                 line = sr.ReadLine();
-                maxID = maxID < workClientsList[i].id ? maxID + 1 : maxID;
                 if (File.Exists($@"Changes_{workClientsList[i].id}.txt")) GetClientsChanges($@"Changes_{workClientsList[i].id}.txt", i);
                 maxClientID = workClientsList[i].id <= maxClientID ? maxClientID : workClientsList[i].id;
                 i++;
@@ -292,7 +291,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Изменение данных клиента        
+        #region Изменение данных клиента ??????????????       
         private void ChangeClient(Client client)
         {
             //changingClient = message;
@@ -330,19 +329,41 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Dispose
+        public void Dispose()
+        {
+            _SubscriptionAuth.Dispose();
+            _SubscriptionClient.Dispose();
+        }
         #endregion
 
+        #region Удаление выбранного клиента
+        public void DeleteClient(Client client)
+        {
+            foreach (var _client in workClientsList)
+            {
+                if (_client.id == client.id)
+                {
+                    workClientsList.Remove(_client);
+                    break;
+                }
+            }
+            PrintInFile();
+            GetViewClientList();
+            if (File.Exists($@"Changes_{client.id}.txt")) File.Delete($@"Changes_{client.id}.txt");
+        }
+        #endregion
+
+        #endregion
+
+        #region Конструкторы
         public MainWindowViewModel()
         {
             GetClients();            
             OpenAuthWindowCommand = new BaseCommand(OnOpenAuthWindowCommandExecuted, CanOpenAuthWindowCommandExecute);
             OpenAddNewClientWindowCommand = new BaseCommand(OnOpenAddNewClientWindowCommandExecuted, CanOpenAddNewClientWindowCommandExecute);
             DeleteClientCommand = new BaseCommand(OnDeleteClientCommandExecuted, CanDeleteClientCommandExecute);
-            OpenClientWindowCommand = new BaseCommand(OnOpenClientWindowCommandExecuted, CanOpenClientWindowCommandExecute);
-            //repository = new Repository(isManager);
-            //ClientList = repository.GetAllClient();
-            //ViewClientList = GetViewClientList();
-            //accessRights = repository.employee.AccessRights;
+            OpenClientWindowCommand = new BaseCommand(OnOpenClientWindowCommandExecuted, CanOpenClientWindowCommandExecute);           
             
         }
 
@@ -353,180 +374,30 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _SubscriptionAuth = messageBus.RegesterHandler<Employee>(OnReceiveEmployee);
             _SubscriptionClient = messageBus.RegesterHandler<Client>(OnReceiveClient);
         }
-
-        public void Dispose() => _SubscriptionAuth.Dispose();
-        #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #region Свойста и поля
-
-
-
-        #region Базовый список клиентов
-        private List<Client> сlientList;
-
-        public List<Client> ClientList
-        {
-            get { return сlientList; }
-            set
-            {
-                сlientList = value;
-                OnPropertyChanged("сlientList");
-            }
-        }
-        #endregion
-
-        
-
-        #region Чек бокс для выбора типа сотрудника
-        //private byte isManager;
-
-        //public byte IsManager
-        //{
-        //    get { return isManager; }
-        //    set
-        //    {
-        //        if (isManager != value) { checkStatusManager = true; }
-        //        isManager = value;
-        //        OnPropertyChanged("IsManager");
-        //        if (checkStatusManager) { repository = new Repository(isManager); checkStatusManager = false; }
-        //        OnPropertyChanged("Repository");
-        //        viewClientList = GetViewClientList();
-        //        OnPropertyChanged("ClientList");
-        //        accessRights = repository.employee.AccessRights;
-        //        OnPropertyChanged("AccessRights");
-        //    }
-        //}
-        #endregion
-
-        #region Репозиторий
-        //private Repository repository;
-        //public Repository Repository
-        //{
-        //    get { return repository; }
-        //    set
-        //    {
-        //        repository = value;
-
-        //        OnPropertyChanged("Repository");
-        //    }
-        //}
-        #endregion
-
-        #region Флаг для проверки изменения типа сотрудника
-        private bool checkStatusManager = false;
-        #endregion
-
-        #region Флаг для проверки прав на изменение поля клиента
-        private AccessRights accessRights;
-
-        public AccessRights AccessRights
-        {
-            get { return accessRights; }
-            set
-            {
-                accessRights = value;
-                OnPropertyChanged("AccessRights");
-            }
-        }
-        #endregion
-
-        
-
-
-
-        #endregion
-
-        #region Команды
-
-        #region Сохранение изменений
-        //public ICommand SaveChangingCommand { get; }
-        //private bool CanSaveChangingCommandExecute(object p) => p is Client;
-
-        //private void OnSaveChangingCommandExecuted(object p)
-        //{
-        //    repository.ChangeClient(selectedClient);
-        //    ViewClientList = GetViewClientList();
-        //    OnPropertyChanged("ViewClientList");
-        //}
-        #endregion
-
-        #region Добавление нового клиента
-        //public ICommand AddClientCommand { get; }
-        //private bool CanAddClientCommandExecute(object p) => isManager == 1;
-
-        //private void OnAddClientCommandExecuted(object p)
-        //{
-        //    repository.AddClient();
-        //    ViewClientList = GetViewClientList();
-        //    OnPropertyChanged("ViewClientList");
-        //}
-        #endregion
-
-        #region Удаление выбранного клиента
-        //public ICommand DeleteClientCommand { get; }
-        //private bool CanDeleteClientCommandExecute(object p) => p is Client && isManager == 1;
-
-        //private void OnDeleteClientCommandExecuted(object p)
-        //{
-        //    if (!(p is Client client)) return;
-        //    repository.DeleteClient(p as Client);
-        //    ViewClientList = GetViewClientList();
-        //    OnPropertyChanged("ViewClientList");
-        //}
         #endregion
 
         #endregion
 
-        
 
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         #region Repository
 
 
-
-        public Employee employee { get; }
-        
-        private int maxID = 0;
-
-
-        ///// <summary>
-        ///// Конструктор репозитория
-        ///// </summary>
-        ///// <param name="IsManager"></param>
-        ////public Repository(byte isManager)
-        ////{
-        ////    GetClients();
-        ////    employee = new Consultant();
-        ////    if (isManager == 1) { employee = new Manager(); }
-        ////}
-
-        
-
-        ///// <summary>
-        ///// Метод по выводу списка для просмотра клиентов
-        ///// </summary>
-        ///// <returns></returns>
-        //public List<Client> ViewAllClient()
-        //{
-        //    return employee.ViewClients(clients);
-        //}
 
         ///// <summary>
         ///// Метод по изменению данных списка клиентов
@@ -538,15 +409,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
         //    PrintInFile();
         //}
 
-        ///// <summary>
-        ///// Метод по добавлению нового клиента
-        ///// </summary>
-        ///// <returns></returns>
-        //public void AddClient()
-        //{
-        //    clients.Add(employee.AddClients(maxID + 1));
-        //    PrintInFile();
-        //}
 
         ///// <summary>
         ///// Метод по удалению клиента
@@ -565,39 +427,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         //    PrintInFile();
         //}
 
-        #region Группа методов для записи и получения данных из файлов
-        //private void PrintInFile()
-        //{
-        //    StreamWriter sw = new StreamWriter(pathClient);
-        //    string str;
-        //    for (int i = 0; i < clients.Count; i++)
-        //    {
-        //        str = clients[i].id + "#" + clients[i].lastName +
-        //            "#" + clients[i].firstName + "#" + clients[i].middleName +
-        //            "#" + clients[i].phoneNumber + "#" + clients[i].passportNumber;
-        //        sw.WriteLine(str);
-        //        if (clients[i].ClientChanges.Count != 0) PrintChangingInFile(clients[i]);
-        //    }
-        //    sw.Close();
-        //}
-
-        //private void PrintChangingInFile(Client client)
-        //{
-        //    StreamWriter sw = new StreamWriter($@"Changes_{client.id}.txt");
-        //    string str;
-        //    for (int i = 0; i < client.ClientChanges.Count; i++)
-        //    {
-        //        str = client.ClientChanges[i].changedDataType + "#" + client.ClientChanges[i].oldChangedData + "#"
-        //            + client.ClientChanges[i].newChangedData + "#" + client.ClientChanges[i].changedEmployee + "#"
-        //            + client.ClientChanges[i].lastUpdate;
-        //        sw.WriteLine(str);
-        //    }
-        //    sw.Close();
-        //}
-
-
         
-        #endregion
 
         #endregion
 
