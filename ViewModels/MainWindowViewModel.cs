@@ -285,7 +285,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private void AddClient(Client client)
         {
             client.id = ++maxClientID;
-            client.ClientChanges = new();
+            client.ClientChanges = new() { new() };
             workClientsList.Add(client);
             PrintInFile();
             GetViewClientList();
