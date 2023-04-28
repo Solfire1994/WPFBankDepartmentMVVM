@@ -31,7 +31,11 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         public ObservableCollection<Client> ViewClientList
         {
-            get { return viewClientList; }
+            get 
+            {
+                if (viewClientList.Count() == 0) return new() { new() };
+                return viewClientList; 
+            }
             set => Set(ref viewClientList, value, nameof(ViewClientList));
         }
         #endregion
@@ -165,9 +169,10 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #region Методы получения workClientList
         private void GetClients()
         {
-            StreamReader sr = new StreamReader(pathClient);
-            string[] result;
             workClientsList = new List<Client>();
+            if (!File.Exists(pathClient)) return;            
+            StreamReader sr = new StreamReader(pathClient);
+            string[] result;            
             string line = sr.ReadLine();
             int i = 0;
             while (line != null)
@@ -176,7 +181,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 workClientsList.Add(new Client(int.Parse(result[0]), result[1], result[2],
                     result[3], result[4], result[5]));
                 line = sr.ReadLine();
-                if (File.Exists($@"Changes_{workClientsList[i].id}.txt")) GetClientsChanges($@"Changes_{workClientsList[i].id}.txt", i);
+                if (File.Exists($@"ClientChanges\Changes_{workClientsList[i].id}.txt"))
+                    GetClientsChanges($@"ClientChanges\Changes_{workClientsList[i].id}.txt", i);
                 maxClientID = workClientsList[i].id <= maxClientID ? maxClientID : workClientsList[i].id;
                 i++;
             }
@@ -186,14 +192,20 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private void GetClientsChanges(string path, int index)
         {
             StreamReader sr = new StreamReader(path);
-
             string[] result;
             string line = sr.ReadLine();
             while (line != null)
             {
                 result = line.Split('#');
-                workClientsList[index].ClientChanges.Add(new ClientChanges(result[0], result[1], result[2],
-                        result[3], DateTime.Parse(result[4])));
+                switch (result[0])
+                {
+                    case "0": workClientsList[index].ClientChanges.Add(new ClientChanges(result[1], result[2], 
+                        DateTime.Parse(result[3]))); break;
+                    case "1": workClientsList[index].ClientChanges.Add(new ClientChanges(result[1], result[2], result[3],
+                        result[4], DateTime.Parse(result[5]))); break;
+                    default: workClientsList[index].ClientChanges.Add(new ClientFinanceChanges(result[1], result[2], result[3],
+                        result[4], DateTime.Parse(result[5]))); break;
+                }                
                 line = sr.ReadLine();
             }
             sr.Close();
@@ -205,13 +217,13 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private ObservableCollection<Client> GetViewClientList()
         {
             int i = 0;
-            ViewClientList = new ObservableCollection<Client>();
+            viewClientList = new ObservableCollection<Client>();
             string consultantPassportView = "*********";
             if (employeeType is Consultant)
             {
                 foreach (Client client in workClientsList)
                 {
-                    ViewClientList.Add(new Client(client.id, client.lastName,
+                    viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, consultantPassportView, client.ClientChanges));
                     i++;
                 }
@@ -220,11 +232,12 @@ namespace WPFBankDepartmentMVVM.ViewModels
             {
                 foreach (Client client in workClientsList)
                 {
-                    ViewClientList.Add(new Client(client.id, client.lastName,
+                    viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, client.passportNumber, client.ClientChanges));
                     i++;
                 }
             }
+            OnPropertyChanged(nameof(ViewClientList));
             return ViewClientList;
         }
         #endregion
@@ -285,14 +298,14 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Изменение данных клиента??????       
+        #region Изменение данных клиента??????  ToDoFinance     
         private void ChangeClient(Client client)
         {
             int i = 0 ;
             foreach (Client _client in workClientsList)
             {
                 if (_client.id != client.id) { i++; continue; }
-                workClientsList[i] = client;
+                CreateClientChanges(workClientsList[i], client);
                 PrintInFile();
                 GetViewClientList();
                 return;
@@ -318,13 +331,19 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         private void PrintChangingInFile(Client client)
         {
-            StreamWriter sw = new StreamWriter($@"Changes_{client.id}.txt");
+            if (!Directory.Exists($@"ClientChanges")) Directory.CreateDirectory($@"ClientChanges");
+            var sw = new StreamWriter($@"ClientChanges\Changes_{client.id}.txt");
             string str;
             for (int i = 0; i < client.ClientChanges.Count; i++)
             {
-                str = client.ClientChanges[i].changedDataType + "#" + client.ClientChanges[i].oldChangedData + "#"
-                    + client.ClientChanges[i].newChangedData + "#" + client.ClientChanges[i].changedEmployee + "#"
-                    + client.ClientChanges[i].lastUpdate;
+                str = client.ClientChanges[i].idTypeChange + "#" + client.ClientChanges[i].changedDataType + "#"
+                            + client.ClientChanges[i].oldChangedData + "#" + client.ClientChanges[i].newChangedData + "#"
+                            + client.ClientChanges[i].changedEmployee + "#" + client.ClientChanges[i].lastUpdate;
+                if (client.ClientChanges[i].idTypeChange == 0)
+                {
+                    str = client.ClientChanges[i].idTypeChange + "#" + client.ClientChanges[i].changedDataType + "#"
+                            + client.ClientChanges[i].changedEmployee + "#" + client.ClientChanges[i].lastUpdate;
+                }
                 sw.WriteLine(str);
             }
             sw.Close();
@@ -356,12 +375,84 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Создание изменений??????????  ToDoFinance       
+        private void CreateClientChanges(Client oldClientData, Client newClientData)
+        {
+            /* changedDataType
+             * 1 - first name
+             * 2 - last name
+             * 3 - middle name
+             * 4 - phone number
+             * 5 - passport number
+             */
+            
+            if (oldClientData.firstName != newClientData.firstName)
+            {
+                ChangeData(oldClientData, newClientData, 1);                
+            }
+            if (oldClientData.lastName != newClientData.lastName)
+            {
+                ChangeData(oldClientData, newClientData, 2);
+            }
+            if (oldClientData.middleName != newClientData.middleName)
+            {
+                ChangeData(oldClientData, newClientData, 3);
+            }
+            if (oldClientData.phoneNumber != newClientData.phoneNumber)
+            {
+                ChangeData(oldClientData, newClientData, 4);
+            }
+            if (oldClientData.passportNumber != newClientData.passportNumber && EmployeeType is Manager)
+            {
+                ChangeData(oldClientData, newClientData, 5);
+            }
+        }
+
+        private void ChangeData(Client oldClientData, Client newClientData, int changedDataType)
+        {
+            switch (changedDataType)
+            {
+                case 1:
+                    oldClientData.ClientChanges.Add(new ClientChanges("Изменено имя", oldClientData.firstName,
+                    newClientData.firstName, EmployeeType));
+                    oldClientData.firstName = newClientData.firstName;
+                    break;
+                case 2:
+                    oldClientData.ClientChanges.Add(new ClientChanges("Изменена фамилия", oldClientData.lastName,
+                    newClientData.lastName, EmployeeType));
+                    oldClientData.lastName = newClientData.lastName;
+                    break;
+                case 3:
+                    oldClientData.ClientChanges.Add(new ClientChanges("Изменено отчество", oldClientData.middleName,
+                    newClientData.middleName, EmployeeType));
+                    oldClientData.middleName = newClientData.middleName;
+                    break;
+                case 4:
+                    oldClientData.ClientChanges.Add(new ClientChanges("Изменен номер телефона", oldClientData.phoneNumber,
+                    newClientData.phoneNumber, EmployeeType));
+                    oldClientData.phoneNumber = newClientData.phoneNumber;
+                    break;
+                case 5:
+                    oldClientData.ClientChanges.Add(new ClientChanges("Изменен номер паспорта", oldClientData.passportNumber,
+                    newClientData.passportNumber, EmployeeType));
+                    oldClientData.passportNumber = newClientData.passportNumber;
+                    break;
+            }
+        }
+
+        #endregion
+
+
+
+
+
         #endregion
 
         #region Конструкторы
         public MainWindowViewModel()
         {
-            GetClients();            
+            GetClients();
+            viewClientList = GetViewClientList();
             OpenAuthWindowCommand = new BaseCommand(OnOpenAuthWindowCommandExecuted, CanOpenAuthWindowCommandExecute);
             OpenAddNewClientWindowCommand = new BaseCommand(OnOpenAddNewClientWindowCommandExecuted, CanOpenAddNewClientWindowCommandExecute);
             DeleteClientCommand = new BaseCommand(OnDeleteClientCommandExecuted, CanDeleteClientCommandExecute);

@@ -1,26 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
 
 namespace WPFBankDepartmentMVVM.Models.ClientBase
 {
     internal class ClientChanges
     {
-        public DateTime lastUpdate { get; }
-        public string changedDataType { get; }
-        public string oldChangedData { get; }
-        public string newChangedData { get; }
-        public string changedEmployee { get; }
+        
+        // Тип изменений
+        // 0 Создание клиента
+        // 1 Изменение данных
+        // 2 Изменения финансового плана
+        public int idTypeChange { get; protected set; }
+        public DateTime lastUpdate { get; protected set; }
+        public string changedDataType { get; protected set; }
+        public string oldChangedData { get; protected set; }
+        public string newChangedData { get; protected set; }
+        public string changedEmployee { get; protected set; }
 
         public ClientChanges()
         {
+            idTypeChange = 0;
             changedDataType = "Клиент создан";
             lastUpdate = DateTime.Now;
             changedEmployee = "Клиента создал Менеджер";
+        }
+
+        public ClientChanges(string changedDataType, string changedEmployee, DateTime lastUpdate)
+        {
+            this.changedDataType = changedDataType;
+            this.changedEmployee = changedEmployee;
+            this.lastUpdate = lastUpdate;
+            idTypeChange = 0;
         }
 
         public ClientChanges(string changedDataType, string oldChangedData, string newChangedData, Employee changedEmployee)
@@ -31,6 +41,7 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.changedEmployee = "Данные изменял консультант";
             if (changedEmployee is Manager) this.changedEmployee = "Данные изменял Менеджер";
             lastUpdate = DateTime.Now;
+            idTypeChange = 1;
         }
 
         public ClientChanges(string changedDataType, string oldChangedData, string newChangedData, string changedEmployee, DateTime lastUpdate)
@@ -40,7 +51,7 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.newChangedData = newChangedData;
             this.changedEmployee = changedEmployee;
             this.lastUpdate = lastUpdate;
+            idTypeChange = 1;
         }
-
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using WPFBankDepartmentMVVM.Models.AccountBase;
 
 namespace WPFBankDepartmentMVVM.Models.ClientBase
 {
@@ -20,6 +16,29 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
         {
             get { return clientChanges; }
             set => clientChanges = value;
+        }
+
+        private DepositAccount depositAccount;
+
+        public DepositAccount DepositAccount
+        {
+            get { return depositAccount; }
+            set { depositAccount = value; }
+        }
+
+        private NonDepositAccount nonDepositAccount;
+
+        public NonDepositAccount NonDepositAccount
+        {
+            get { return nonDepositAccount; }
+            set { nonDepositAccount = value; }
+        }
+
+        public Client()
+        {
+            lastName = "Список клиентов пуст,";
+            firstName = "менеджеру необходимо";
+            middleName = "добавить новых клиентов";
         }
 
         public Client(int id, string lastName, string firstName, string middleName, string phoneNumber, string passportNumber)

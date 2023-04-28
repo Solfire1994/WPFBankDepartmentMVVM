@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using WPFBankDepartmentMVVM.Command.Base;
+using WPFBankDepartmentMVVM.Models.AccountBase;
 using WPFBankDepartmentMVVM.Models.ClientBase;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
 using WPFBankDepartmentMVVM.Services;
@@ -21,19 +17,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private readonly IDisposable _SubscriptionClient = null!;
         private readonly IDisposable _SubscriptionAuth = null!;
         private bool IsCorrectFields = false;
-
-        #region Первоначальные данные клиента
-        private Client startClient;
-
-        public Client StartClient
-        {
-            get { return startClient; }
-            set
-            {
-                Set(ref startClient, value, nameof(StartClient));
-            }
-        }
-        #endregion
+               
 
         #region Выбранный клиент
         private Client selectedClient;
@@ -62,6 +46,32 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Строка состояния депозитного счета
+        private string depositAccountData = "Счет отсутствует";
+
+        public string DepositAccountData
+        {
+            get { return depositAccountData; }
+            set
+            {
+                Set(ref depositAccountData, value, nameof(DepositAccountData));
+            }
+        }
+        #endregion
+
+        #region Строка состояния дебетового счета
+        private string nonDepositAccountData = "Счет отсутствует";
+
+        public string NonDepositAccountData
+        {
+            get { return nonDepositAccountData; }
+            set
+            {
+                Set(ref nonDepositAccountData, value, nameof(NonDepositAccountData));
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Команды
@@ -73,12 +83,29 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private void OnSaveChangingClientCommandExecuted(object p)
         {
             _MessageBus.Send(selectedClient);
-            StartClient.lastName = SelectedClient.lastName;
-            StartClient.firstName = SelectedClient.firstName;
-            StartClient.middleName = SelectedClient.middleName;
-            StartClient.phoneNumber = SelectedClient.phoneNumber;
-            StartClient.passportNumber = SelectedClient.passportNumber;
             IsCorrectFields = false;
+        }
+        #endregion
+
+        #region Открытие депозитного счета
+        public ICommand OpenDepositAccountCommand { get; }
+        private bool CanOpenDepositAccountCommandExecute(object p) => selectedClient.DepositAccount == null;
+
+        private void OnOpenDepositAccountCommandExecuted(object p)
+        {
+            selectedClient.DepositAccount = new(selectedClient.id);
+            DepositAccountData = GetAccountData(selectedClient.DepositAccount);
+        }
+        #endregion
+
+        #region Открытие недепозитного счета
+        public ICommand OpenNonDepositAccountCommand { get; }
+        private bool CanOpenNonDepositAccountCommandExecute(object p) => selectedClient.NonDepositAccount == null;
+
+        private void OnOpenNonDepositAccountCommandExecuted(object p)
+        {
+            selectedClient.NonDepositAccount = new(selectedClient.id);
+            NonDepositAccountData = GetAccountData(selectedClient.NonDepositAccount);
         }
         #endregion
 
@@ -89,8 +116,9 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #region Метод для передачи между окнами клиента в системе        
         private void OnReceiveClient(Client message)
         {            
-            startClient = new(message.id, message.lastName, message.firstName, message.middleName, message.phoneNumber, message.passportNumber);
             SelectedClient = message;
+            if (message.DepositAccount != null) DepositAccountData = GetAccountData(message.DepositAccount);
+            if (message.NonDepositAccount != null) NonDepositAccountData = GetAccountData(message.NonDepositAccount);
         }
         #endregion
 
@@ -103,24 +131,22 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         #region Проверка корректонсти ввода полей
         private void CheckClientFields()
-        {
-            if (StartClient.lastName != SelectedClient.lastName ||
-            StartClient.firstName != SelectedClient.firstName ||
-            StartClient.middleName != SelectedClient.middleName ||
-            StartClient.phoneNumber != SelectedClient.phoneNumber ||
-            StartClient.passportNumber != SelectedClient.passportNumber)
-            {
+        {            
                 if (SelectedClient.lastName.Length <= 0 || selectedClient.lastName.Length > 40) IsCorrectFields = false;
                 if (SelectedClient.firstName.Length <= 0 || SelectedClient.firstName.Length > 40) IsCorrectFields = false;
                 if (SelectedClient.middleName.Length <= 0 || SelectedClient.middleName.Length > 40) IsCorrectFields = false;
                 if (SelectedClient.phoneNumber.Length <= 0 || SelectedClient.phoneNumber.Length > 40) IsCorrectFields = false;
                 if (SelectedClient.passportNumber.Length <= 0 || SelectedClient.passportNumber.Length > 40) IsCorrectFields = false;
-                IsCorrectFields = true;
-            }
-            
+                IsCorrectFields = true;            
         }
         #endregion
 
+        #region Метод для получения названия и суммы на указанном счете        
+        private string GetAccountData(IAccount account)
+        {
+            return $"{account.name} Остаток суммы на счете: {account.GetValue()}";
+        }
+        #endregion
 
         #endregion
 
@@ -128,6 +154,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
         public ClientWindowViewModel()
         {
             SaveChangingClientCommand = new BaseCommand(OnSaveChangingClientCommandExecuted, CanSaveChangingClientCommandExecute);
+            OpenDepositAccountCommand = new BaseCommand(OnOpenDepositAccountCommandExecuted, CanOpenDepositAccountCommandExecute);
+            OpenNonDepositAccountCommand = new BaseCommand(OnOpenNonDepositAccountCommandExecuted, CanOpenNonDepositAccountCommandExecute);
         }
 
         public ClientWindowViewModel(IUserDialog userDialog, IMessageBus messageBus) : this()
