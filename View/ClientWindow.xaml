@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
         xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
-        d:DataContext="{d:DesignInstance vm:ClientWindowViewModel, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance vm:ClientWindowViewModel}"
         mc:Ignorable="d"
         Title="ClientWindow" MinHeight="450" MinWidth="800" FontSize="14">
     <Grid>

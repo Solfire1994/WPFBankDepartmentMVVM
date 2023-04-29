@@ -47,7 +47,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #endregion
 
         #region Строка состояния депозитного счета
-        private string depositAccountData = "Счет отсутствует";
+        private string depositAccountData;
 
         public string DepositAccountData
         {
@@ -60,7 +60,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #endregion
 
         #region Строка состояния дебетового счета
-        private string nonDepositAccountData = "Счет отсутствует";
+        private string nonDepositAccountData;
 
         public string NonDepositAccountData
         {
@@ -95,6 +95,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
         {
             selectedClient.DepositAccount = new(selectedClient.id);
             DepositAccountData = GetAccountData(selectedClient.DepositAccount);
+            _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, EmployeeType, true));
+            _MessageBus.Send(selectedClient);
         }
         #endregion
 
@@ -106,6 +108,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
         {
             selectedClient.NonDepositAccount = new(selectedClient.id);
             NonDepositAccountData = GetAccountData(selectedClient.NonDepositAccount);
+            _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, EmployeeType, true));
+            _MessageBus.Send(selectedClient);
         }
         #endregion
 
@@ -117,6 +121,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private void OnReceiveClient(Client message)
         {            
             SelectedClient = message;
+            DepositAccountData = "Счет отсутствует";
+            NonDepositAccountData = "Счет отсутствует";
             if (message.DepositAccount != null) DepositAccountData = GetAccountData(message.DepositAccount);
             if (message.NonDepositAccount != null) NonDepositAccountData = GetAccountData(message.NonDepositAccount);
         }

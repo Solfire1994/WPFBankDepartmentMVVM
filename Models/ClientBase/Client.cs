@@ -62,7 +62,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.phoneNumber = phoneNumber;
             this.passportNumber = passportNumber;
             this.clientChanges = clientChanges;
-
         }
     }
 }

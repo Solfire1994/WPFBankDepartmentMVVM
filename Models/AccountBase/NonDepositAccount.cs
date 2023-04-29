@@ -36,6 +36,11 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
         public void TransferMoneyReceiving(uint sum)
         {
             value += sum;
+        }        
+
+        public uint GetValue()
+        {
+            return value;
         }
 
         public NonDepositAccount(int id)
@@ -43,9 +48,10 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
             name = $"Дебетовый счет № {id + 200000}";
         }
 
-        public uint GetValue()
+        public NonDepositAccount(string name, uint value)
         {
-            return value;
+            this.name = name;
+            this.value = value;
         }
     }
 }

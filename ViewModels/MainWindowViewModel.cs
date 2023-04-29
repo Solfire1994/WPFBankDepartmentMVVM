@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using WPFBankDepartmentMVVM.Command.Base;
+using WPFBankDepartmentMVVM.Models.AccountBase;
 using WPFBankDepartmentMVVM.Models.ClientBase;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
 using WPFBankDepartmentMVVM.Services;
@@ -24,7 +26,9 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private readonly IMessageBus _MessageBus = null!;
         private readonly IDisposable _SubscriptionAuth = null!;
         private readonly IDisposable _SubscriptionClient = null!;
+        private readonly IDisposable _SubscriptionClientChanges = null!;
         private int maxClientID = 0;
+        private bool clientIsChanged = true;
 
         #region Видимый список клиентов
         private ObservableCollection<Client> viewClientList;
@@ -158,7 +162,9 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _UserDialog.CreateClientWindow();
             _MessageBus.Send((Client)p);
             _MessageBus.Send(EmployeeType);
+            SelectedClient = (Client)p;
             _UserDialog.OpenClientWindow();
+            
         }
         #endregion
 
@@ -183,6 +189,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 line = sr.ReadLine();
                 if (File.Exists($@"ClientChanges\Changes_{workClientsList[i].id}.txt"))
                     GetClientsChanges($@"ClientChanges\Changes_{workClientsList[i].id}.txt", i);
+                if (File.Exists($@"ClientFinance\Finance_{workClientsList[i].id}.txt"))
+                    GetClientsFinance($@"ClientFinance\Finance_{workClientsList[i].id}.txt", i);
                 maxClientID = workClientsList[i].id <= maxClientID ? maxClientID : workClientsList[i].id;
                 i++;
             }
@@ -203,14 +211,34 @@ namespace WPFBankDepartmentMVVM.ViewModels
                         DateTime.Parse(result[3]))); break;
                     case "1": workClientsList[index].ClientChanges.Add(new ClientChanges(result[1], result[2], result[3],
                         result[4], DateTime.Parse(result[5]))); break;
-                    default: workClientsList[index].ClientChanges.Add(new ClientFinanceChanges(result[1], result[2], result[3],
+                    case "2": workClientsList[index].ClientChanges.Add(new ClientFinanceChanges(result[1], result[2], result[3],
                         result[4], DateTime.Parse(result[5]))); break;
+                    default: workClientsList[index].ClientChanges.Add(new ClientFinanceChanges(int.Parse(result[0]), result[1], 
+                        result[2], DateTime.Parse(result[3]))); break;                        
                 }                
                 line = sr.ReadLine();
             }
             sr.Close();
         }
 
+        private void GetClientsFinance(string path, int index)
+        {
+            StreamReader sr = new StreamReader(path);
+            string[] result;
+            string line = sr.ReadLine();
+            if ( !string.IsNullOrEmpty(line))
+            {
+                result = line.Split('#');
+                workClientsList[index].DepositAccount = new(result[0], uint.Parse(result[1]));
+            }
+            line = sr.ReadLine();
+            if (!string.IsNullOrEmpty(line))
+            {
+                result = line.Split('#');
+                workClientsList[index].NonDepositAccount = new(result[0], uint.Parse(result[1]));
+            }
+            sr.Close();
+        }
         #endregion
 
         #region Метод для получения, либо обновления видимого списка клиентов
@@ -225,6 +253,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 {
                     viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, consultantPassportView, client.ClientChanges));
+                    viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
+                    viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;
                     i++;
                 }
             }
@@ -234,6 +264,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 {
                     viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, client.passportNumber, client.ClientChanges));
+                    viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
+                    viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;
                     i++;
                 }
             }
@@ -283,7 +315,16 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private void OnReceiveClient(Client message)
         {
             if (message.id == 0) AddClient(message);
-            else ChangeClient(message);
+            else if(clientIsChanged) ChangeClient(message);
+            int i = 0;
+            foreach (Client _client in workClientsList)
+            {
+                if (_client.id != message.id) { i++; continue; }
+                workClientsList[i].DepositAccount = message.DepositAccount;
+                workClientsList[i].NonDepositAccount = message.NonDepositAccount;
+                PrintClientFinanceInFile(workClientsList[i]);
+                return;
+            }
         }
         #endregion
 
@@ -298,14 +339,14 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Изменение данных клиента??????  ToDoFinance     
+        #region Изменение данных клиента     
         private void ChangeClient(Client client)
         {
             int i = 0 ;
             foreach (Client _client in workClientsList)
             {
                 if (_client.id != client.id) { i++; continue; }
-                CreateClientChanges(workClientsList[i], client);
+                CreateClientChanges(workClientsList[i], client);                
                 PrintInFile();
                 GetViewClientList();
                 return;
@@ -313,7 +354,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Группа методов для записи и получения данных из файлов
+        #region Группа методов для записи  данных в файлы
         private void PrintInFile()
         {
             StreamWriter sw = new StreamWriter(pathClient);
@@ -325,6 +366,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
                     "#" + workClientsList[i].phoneNumber + "#" + workClientsList[i].passportNumber;
                 sw.WriteLine(str);
                 if (workClientsList[i].ClientChanges.Count != 0) PrintChangingInFile(workClientsList[i]);
+                if (workClientsList[i].DepositAccount != null || workClientsList[i].NonDepositAccount != null)
+                    PrintClientFinanceInFile(workClientsList[i]); 
             }
             sw.Close();
         }
@@ -339,7 +382,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 str = client.ClientChanges[i].idTypeChange + "#" + client.ClientChanges[i].changedDataType + "#"
                             + client.ClientChanges[i].oldChangedData + "#" + client.ClientChanges[i].newChangedData + "#"
                             + client.ClientChanges[i].changedEmployee + "#" + client.ClientChanges[i].lastUpdate;
-                if (client.ClientChanges[i].idTypeChange == 0)
+                if (client.ClientChanges[i].idTypeChange == 0 || client.ClientChanges[i].idTypeChange == 3 || client.ClientChanges[i].idTypeChange == 4)
                 {
                     str = client.ClientChanges[i].idTypeChange + "#" + client.ClientChanges[i].changedDataType + "#"
                             + client.ClientChanges[i].changedEmployee + "#" + client.ClientChanges[i].lastUpdate;
@@ -348,6 +391,20 @@ namespace WPFBankDepartmentMVVM.ViewModels
             }
             sw.Close();
         }
+
+        private void PrintClientFinanceInFile(Client client)
+        {
+            if (!Directory.Exists($@"ClientFinance")) Directory.CreateDirectory($@"ClientFinance");
+            var sw = new StreamWriter($@"ClientFinance\Finance_{client.id}.txt");
+            string strDeposit = null;
+            string strNonDeposit = null;
+            if (client.DepositAccount != null) strDeposit = $"{client.DepositAccount.name}#{client.DepositAccount.GetValue()}";
+            if (client.NonDepositAccount != null) strNonDeposit = $"{client.NonDepositAccount.name}#{client.NonDepositAccount.GetValue()}";            
+            sw.WriteLine(strDeposit);
+            sw.WriteLine(strNonDeposit);
+            sw.Close();
+        }
+
         #endregion
 
         #region Dispose
@@ -355,6 +412,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         {
             _SubscriptionAuth.Dispose();
             _SubscriptionClient.Dispose();
+            _SubscriptionClientChanges.Dispose();
         }
         #endregion
 
@@ -375,7 +433,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        #region Создание изменений??????????  ToDoFinance       
+        #region Создание изменений       
         private void CreateClientChanges(Client oldClientData, Client newClientData)
         {
             /* changedDataType
@@ -442,7 +500,15 @@ namespace WPFBankDepartmentMVVM.ViewModels
 
         #endregion
 
-
+        #region Метод для передачи между окнами изменений клиента в системе        
+        private void OnReceiveClientChanges(ClientFinanceChanges message)
+        {
+            clientIsChanged = false;
+            selectedClient.ClientChanges.Add(message);
+            PrintChangingInFile(selectedClient);
+            _MessageBus.Send(selectedClient);
+        }
+        #endregion
 
 
 
@@ -466,6 +532,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _MessageBus = messageBus;
             _SubscriptionAuth = messageBus.RegesterHandler<Employee>(OnReceiveEmployee);
             _SubscriptionClient = messageBus.RegesterHandler<Client>(OnReceiveClient);
+            _SubscriptionClientChanges = messageBus.RegesterHandler<ClientFinanceChanges>(OnReceiveClientChanges);
         }
         #endregion
         

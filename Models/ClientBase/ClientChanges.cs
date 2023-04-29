@@ -4,8 +4,7 @@ using WPFBankDepartmentMVVM.Models.EmployeeBase;
 namespace WPFBankDepartmentMVVM.Models.ClientBase
 {
     internal class ClientChanges
-    {
-        
+    {        
         // Тип изменений
         // 0 Создание клиента
         // 1 Изменение данных
@@ -24,7 +23,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             lastUpdate = DateTime.Now;
             changedEmployee = "Клиента создал Менеджер";
         }
-
         public ClientChanges(string changedDataType, string changedEmployee, DateTime lastUpdate)
         {
             this.changedDataType = changedDataType;
@@ -32,7 +30,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.lastUpdate = lastUpdate;
             idTypeChange = 0;
         }
-
         public ClientChanges(string changedDataType, string oldChangedData, string newChangedData, Employee changedEmployee)
         {
             this.changedDataType = changedDataType;
@@ -43,7 +40,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             lastUpdate = DateTime.Now;
             idTypeChange = 1;
         }
-
         public ClientChanges(string changedDataType, string oldChangedData, string newChangedData, string changedEmployee, DateTime lastUpdate)
         {
             this.changedDataType = changedDataType;

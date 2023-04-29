@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WPFBankDepartmentMVVM.Models.EmployeeBase
+﻿namespace WPFBankDepartmentMVVM.Models.EmployeeBase
 {
     internal class Manager : Employee
     {
