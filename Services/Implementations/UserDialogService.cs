@@ -9,6 +9,7 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
         private readonly IServiceProvider _Servises;
         public UserDialogService(IServiceProvider servises) => _Servises = servises;
 
+        #region MainWindow
         private MainWindow? _MainWindow;
         public void OpenMainWindow()
         {
@@ -22,7 +23,9 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             _MainWindow = window;
             window.Show();
         }
+        #endregion
 
+        #region AuthWindow
         private AuthWindow? _AuthWindow;
         public void OpenAuthWindow()
         {
@@ -36,7 +39,9 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             _AuthWindow = window;
             window.ShowDialog();            
         }
+        #endregion
 
+        #region AddNewClientWindow
         private AddNewClient? _AddNewClient;
         public void OpenAddNewClientWindow()
         {
@@ -50,7 +55,9 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
             _AddNewClient = window;
             window.ShowDialog();
         }
+        #endregion
 
+        #region ClientWindow
         private ClientWindow? _ClientWindow;
         public void CreateClientWindow()
         {
@@ -67,21 +74,45 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
         {
             _ClientWindow.ShowDialog();
         }
+        #endregion
 
-        public void OpenChangedLogWindow()
+        #region ChangingLogWindow
+        private ChangingLog? _ChangingLog;
+        public void CreateChangingLogWindow()
         {
-            throw new NotImplementedException();
+            if (_ChangingLog is { } window)
+            {
+                window.ShowDialog();
+                return;
+            }
+            window = _Servises.GetRequiredService<ChangingLog>();
+            window.Closed += (_, _) => _ChangingLog = null;
+            _ChangingLog = window;
         }
+        public void OpenChangingLogWindow()
+        {
+            _ChangingLog.ShowDialog();
+        }
+        #endregion
 
-        
-
-        
-
+        #region TransferWindow
+        private TransferWindow? _TransferWindow;
+        public void CreateTransferWindow()
+        {
+            if (_TransferWindow is { } window)
+            {
+                window.ShowDialog();
+                return;
+            }
+            window = _Servises.GetRequiredService<TransferWindow>();
+            window.Closed += (_, _) => _TransferWindow = null;
+            _TransferWindow = window;
+        }
         public void OpenTransferWindow()
         {
-            throw new NotImplementedException();
+            _TransferWindow.ShowDialog();
         }
+        #endregion
 
-        
     }
 }

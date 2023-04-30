@@ -1,14 +1,11 @@
-﻿using Accessibility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Shapes;
 using WPFBankDepartmentMVVM.Command.Base;
-using WPFBankDepartmentMVVM.Models.AccountBase;
 using WPFBankDepartmentMVVM.Models.ClientBase;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
 using WPFBankDepartmentMVVM.Services;
@@ -522,8 +519,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             OpenAuthWindowCommand = new BaseCommand(OnOpenAuthWindowCommandExecuted, CanOpenAuthWindowCommandExecute);
             OpenAddNewClientWindowCommand = new BaseCommand(OnOpenAddNewClientWindowCommandExecuted, CanOpenAddNewClientWindowCommandExecute);
             DeleteClientCommand = new BaseCommand(OnDeleteClientCommandExecuted, CanDeleteClientCommandExecute);
-            OpenClientWindowCommand = new BaseCommand(OnOpenClientWindowCommandExecuted, CanOpenClientWindowCommandExecute);           
-            
+            OpenClientWindowCommand = new BaseCommand(OnOpenClientWindowCommandExecuted, CanOpenClientWindowCommandExecute);               
         }
 
         public MainWindowViewModel(IUserDialog userDialog, IMessageBus messageBus) : this()

@@ -30,7 +30,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.lastUpdate = lastUpdate;
             idTypeChange = 2;
         }
-
         public ClientFinanceChanges(IAccount accountType, Employee changedEmployee, bool openOrClose)
         {
             lastUpdate = DateTime.Now;
@@ -48,7 +47,6 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             if (changedEmployee is Manager) this.changedEmployee = "Счет закрыл Менеджер";            
             changedDataType = $"Произошло закрытие счета: {accountType.name}";           
         }
-
         public ClientFinanceChanges(int idTypeChange, string changedDataType, string changedEmployee, DateTime lastUpdate)
         {
             this.changedDataType = changedDataType;
@@ -56,6 +54,5 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.lastUpdate = lastUpdate;
             this.idTypeChange = idTypeChange;
         }
-
     }
 }

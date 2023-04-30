@@ -12,12 +12,12 @@ namespace WPFBankDepartmentMVVM.ViewModels
     internal class ClientWindowViewModel : DialogViewModel
     {
         #region Поля и свойства
+
         private readonly IUserDialog _UserDialog = null!;
         private readonly IMessageBus _MessageBus = null!;        
         private readonly IDisposable _SubscriptionClient = null!;
         private readonly IDisposable _SubscriptionAuth = null!;
-        private bool IsCorrectFields = false;
-               
+        private bool IsCorrectFields = false;               
 
         #region Выбранный клиент
         private Client selectedClient;
@@ -84,6 +84,18 @@ namespace WPFBankDepartmentMVVM.ViewModels
         {
             _MessageBus.Send(selectedClient);
             IsCorrectFields = false;
+        }
+        #endregion
+
+        #region Открытие окна изменений клиента
+        public ICommand OpenClienChangedCommand { get; }
+        private bool CanOpenClienChangedCommandExecute(object p) => true;
+
+        private void OnOpenClienChangedCommandExecuted(object p)
+        {
+            _UserDialog.CreateChangingLogWindow();
+            _MessageBus.Send(selectedClient.ClientChanges);
+            _UserDialog.OpenChangingLogWindow();
         }
         #endregion
 
@@ -162,6 +174,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             SaveChangingClientCommand = new BaseCommand(OnSaveChangingClientCommandExecuted, CanSaveChangingClientCommandExecute);
             OpenDepositAccountCommand = new BaseCommand(OnOpenDepositAccountCommandExecuted, CanOpenDepositAccountCommandExecute);
             OpenNonDepositAccountCommand = new BaseCommand(OnOpenNonDepositAccountCommandExecuted, CanOpenNonDepositAccountCommandExecute);
+            OpenClienChangedCommand = new BaseCommand(OnOpenClienChangedCommandExecuted, CanOpenClienChangedCommandExecute);
         }
 
         public ClientWindowViewModel(IUserDialog userDialog, IMessageBus messageBus) : this()

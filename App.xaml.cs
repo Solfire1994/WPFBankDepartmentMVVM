@@ -5,6 +5,7 @@ using WPFBankDepartmentMVVM.Services;
 using WPFBankDepartmentMVVM.Services.Implementations;
 using WPFBankDepartmentMVVM.View;
 using WPFBankDepartmentMVVM.ViewModels;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace WPFBankDepartmentMVVM
 {
@@ -20,9 +21,9 @@ namespace WPFBankDepartmentMVVM
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<AuthWindowViewModel>();
             services.AddTransient<AddNewClientViewModel>();
-            services.AddTransient<ChangingLogViewModel>();
-            services.AddTransient<ClientWindowViewModel>();
-            services.AddTransient<TransferWindowViewModel>();
+            services.AddScoped<ChangingLogViewModel>();
+            services.AddScoped<ClientWindowViewModel>();
+            services.AddScoped<TransferWindowViewModel>();
 
             services.AddSingleton<IUserDialog, UserDialogService>();
             services.AddSingleton<IMessageBus, MessageBusService>();
@@ -58,24 +59,33 @@ namespace WPFBankDepartmentMVVM
             services.AddTransient(
                 s =>
                 {
-                    var model = s.GetRequiredService<ChangingLogViewModel>();
+                    var scope = s.CreateScope();
+                    var model = scope.ServiceProvider.GetRequiredService<ChangingLogViewModel>();
                     var window = new ChangingLog { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
+                    window.Closed += (_, _) => scope.Dispose();
                     return window;
                 });
 
             services.AddTransient(
                 s =>
                 {
-                    var model = s.GetRequiredService<ClientWindowViewModel>();
+                    var scope = s.CreateScope();
+                    var model = scope.ServiceProvider.GetRequiredService<ClientWindowViewModel>();
                     var window = new ClientWindow { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
+                    window.Closed += (_, _) => scope.Dispose();
                     return window;
                 });
 
             services.AddTransient(
                 s =>
                 {
-                    var model = s.GetRequiredService<TransferWindowViewModel>();
+                    var scope = s.CreateScope();
+                    var model = scope.ServiceProvider.GetRequiredService<TransferWindowViewModel>();
                     var window = new TransferWindow { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
+                    window.Closed += (_, _) => scope.Dispose();
                     return window;
                 });
 

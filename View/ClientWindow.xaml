@@ -66,47 +66,61 @@
                              IsReadOnly="{Binding EmployeeType.AccessRights.passpoortNumberChanged, UpdateSourceTrigger=PropertyChanged}"/>
                 </Border>
                 <Border Grid.Row="11" BorderBrush="Black" Margin="5" BorderThickness="1">
-                    <Button Content="Сохранить изменения" Margin="5" Command="{Binding SaveChangingClientCommand}" />
+                    <UniformGrid Rows="1">
+                        <Button Content="Сохранить изменения" Margin="5, 5, 2.5, 5" Command="{Binding SaveChangingClientCommand}" />
+                        <Button Content="Открыть список изменений" Margin="2.5, 5, 5, 5" Command="{Binding OpenClienChangedCommand}"/>
+                    </UniformGrid>
                 </Border>
             </Grid>
         </Border>
-        <DockPanel Grid.Column="1" Margin="0, 5">
-            <Label Content="Параметры работы со счетами" DockPanel.Dock="Top" HorizontalContentAlignment="Center"/>
-            <UniformGrid Rows="1" DockPanel.Dock="Bottom" Height="35">
-                <Button Content="Посмотреть список изменений" Margin="5, 0, 2.5, 5"/>
-                <Button Content="Перевести другому клиенту" Margin="2.5, 0, 5, 5"/>
-            </UniformGrid>
-            <UniformGrid DockPanel.Dock="Bottom" Columns="1">
-                <Label Content="Для перераспределения денег между вашими счетами перетяните ползунок" HorizontalContentAlignment="Center"/>
-                <Slider DockPanel.Dock="Bottom"></Slider>
-                <Button Content="Совершить перевод" Margin="5" Height="30"/>
-            </UniformGrid>
-            <UniformGrid Columns="1">
-                <Border BorderBrush="Black" Margin="5" BorderThickness="3">
-                    <UniformGrid Columns="1">
-                        <Label Content="{Binding DepositAccountData, UpdateSourceTrigger=PropertyChanged}" 
-                               HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                        <UniformGrid Columns="2">
-                            <Button Content="Открыть" Margin="0, 0, 2.5, 0" Command="{Binding OpenDepositAccountCommand}"/>
-                            <Button Content="Закрыть" Margin="2.5, 0, 0, 0"/>
-                            <Button Content="Пополнить" Margin="0, 0, 2.5, 0"/>
-                            <Button Content="Перевести на недепозитный счет" Margin="2.5, 0, 0, 0"/>
-                        </UniformGrid>
-                    </UniformGrid>
+        <Border Grid.Column="1" BorderBrush="Black" Margin="5" BorderThickness="3">
+            <DockPanel>
+            <Label Content="Параметры работы со счетами" DockPanel.Dock="Top" HorizontalContentAlignment="Center"/>                
+                <UniformGrid Columns="1">
+                <Border BorderBrush="Black" Margin="5" BorderThickness="1">
+                    <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Content="{Binding DepositAccountData, UpdateSourceTrigger=PropertyChanged}" 
+                               HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontSize="20" FontWeight="Bold"/>
+                            <UniformGrid Grid.Row="1" Rows="1">
+                                <Button Content="Открыть" Margin="5, 10, 5, 10" Command="{Binding OpenDepositAccountCommand}"/>
+                                <Button Content="Закрыть" Margin="5, 10, 5, 10"/>
+                            </UniformGrid>
+                            <UniformGrid Grid.Row="2" Rows="1">
+                                <Button Content="Пополнить" Margin="5, 10, 5, 10"/>
+                                <Button Content="Перевести на дебетовый счет" Margin="5, 10, 5, 10"/>                                
+                            </UniformGrid>
+                            <Button Grid.Row="3" Content="Перевести на депозитный счет другому клиенту" Margin="5, 10, 5, 5"/>
+                        </Grid>
                 </Border>
-                <Border BorderBrush="Black" Margin="5" BorderThickness="3">
-                    <UniformGrid Columns="1">
-                        <Label Content="{Binding NonDepositAccountData, UpdateSourceTrigger=PropertyChanged}" 
-                               HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                        <UniformGrid Columns="2">
-                            <Button Content="Открыть" Margin="0, 0, 2.5, 0" Command="{Binding OpenNonDepositAccountCommand}"/>
-                            <Button Content="Закрыть" Margin="2.5, 0, 0, 0"/>
-                            <Button Content="Пополнить" Margin="0, 0, 2.5, 0"/>
-                            <Button Content="Перевести на депозитный счет" Margin="2.5, 0, 0, 0"/>
-                        </UniformGrid>
-                    </UniformGrid>
-                </Border>
+                <Border BorderBrush="Black" Margin="5" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Label Grid.Row="0" Content="{Binding NonDepositAccountData, UpdateSourceTrigger=PropertyChanged}" 
+                               HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontSize="20" FontWeight="Bold"/>
+                            <UniformGrid Grid.Row="1" Rows="1">
+                                <Button Content="Открыть" Margin="5, 10, 5, 10" Command="{Binding OpenNonDepositAccountCommand}"/>
+                                <Button Content="Закрыть" Margin="5, 10, 5, 10"/>
+                            </UniformGrid>
+                            <UniformGrid Grid.Row="2" Rows="1">
+                                <Button Content="Пополнить" Margin="5, 10, 5, 10"/>
+                                <Button Content="Перевести на депозитный счет" Margin="5, 10, 5, 10"/>
+                            </UniformGrid>
+                            <Button Grid.Row="3" Content="Перевести на дебетовый счет другому клиенту" Margin="5, 10, 5, 5"/>
+                        </Grid>
+                    </Border>
             </UniformGrid>
         </DockPanel>
+        </Border>
     </Grid>
 </Window>

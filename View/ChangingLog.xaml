@@ -4,11 +4,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
+        xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
+        d:DataContext="{d:DesignInstance vm:ChangingLogViewModel}"
         mc:Ignorable="d"
-         Title="ChangingLog" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14">
+         Title="ChangingLog" MinHeight="550" MinWidth="450" MaxWidth="450" FontSize="14">
     <DockPanel>
-        <Button Content="Закрыть" DockPanel.Dock="Bottom" Margin="10"/>
-        <ListBox >
+        <Button Content="Закрыть" DockPanel.Dock="Bottom" Margin="10" Command="{Binding CloseWindowCommand}"/>
+        <ListBox ItemsSource="{Binding SelectedClientChanges, UpdateSourceTrigger=PropertyChanged}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border  BorderBrush="Black" Margin="5" MinWidth="170"  BorderThickness="1" CornerRadius="10">
+                        <StackPanel Margin="10" Width="360">
+                            <TextBlock TextWrapping="Wrap" Text="{Binding lastUpdate}"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding changedDataType}"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding oldChangedData}"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding newChangedData}"/>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding changedEmployee}" 
+                                       Foreground="Gray" TextAlignment="Left"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
 </Window>
