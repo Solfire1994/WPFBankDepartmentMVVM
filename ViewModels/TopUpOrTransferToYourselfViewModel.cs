@@ -131,7 +131,6 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-
         public TopUpOrTransferToYourselfViewModel()
         {
             Command = new BaseCommand(OnCommandExecuted, CanCommandExecute);            

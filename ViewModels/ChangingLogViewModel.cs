@@ -23,6 +23,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             }
         }
         #endregion        
+
         #region Команда закрытия
         public ICommand CloseWindowCommand { get; }
         private bool CanCloseWindowCommandExecute(object p) => true;
@@ -32,6 +33,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             OnDialogComplete(EventArgs.Empty);
         }
         #endregion
+
         public ChangingLogViewModel() 
         {
             CloseWindowCommand = new BaseCommand(OnCloseWindowCommandExecuted, CanCloseWindowCommandExecute);
