@@ -7,12 +7,9 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
         public readonly uint capitPercent = 6;
         public readonly uint penalty = 8;
         public string name { get; private set; }
-        private uint value;
+        public int Id { get; private set; }
 
-        public void CloseAccount()
-        {
-            throw new NotImplementedException();
-        }
+        private uint value;
 
         public uint GetAvaibleValue()
         {
@@ -41,11 +38,13 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
 
         public DepositAccount (int id)
         {
+            Id = id;
             name = $"Депозитный счет № {id + 100000}";
         }
 
-        public DepositAccount(string name, uint value)
+        public DepositAccount(int id, string name, uint value)
         {
+            Id = id;
             this.name = name;
             this.value = value;
         }

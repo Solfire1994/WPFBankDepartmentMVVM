@@ -12,7 +12,7 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
             this.changedEmployee = "Данные изменял консультант";
             if (changedEmployee is Manager) this.changedEmployee = "Данные изменял Менеджер";
             lastUpdate = DateTime.Now;
-            newChangedData = $"Конечный остаток на счете: {accountType.GetValue} рублей";
+            newChangedData = $"Конечный остаток на счете: {accountType.GetValue()} рублей";
             changedDataType = $"Произошло поступление средств на: {accountType.name}";
             oldChangedData = $"Сумма поступления: {sum}";
             if (sum < 0)

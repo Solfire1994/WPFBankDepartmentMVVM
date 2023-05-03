@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using WPFBankDepartmentMVVM.Command.Base;
 using WPFBankDepartmentMVVM.Models.AccountBase;
@@ -14,11 +16,13 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #region Поля и свойства
 
         private readonly IUserDialog _UserDialog = null!;
-        private readonly IMessageBus _MessageBus = null!;        
+        private readonly IMessageBus _MessageBus = null!;
         private readonly IDisposable _SubscriptionClient = null!;
         private readonly IDisposable _SubscriptionAuth = null!;
-        private bool IsCorrectFields = false;               
-
+        private readonly IDisposable _SubscriptionAccount = null!;
+        private readonly IDisposable _SubscriptionValue = null!;
+        private bool IsCorrectFields = false;
+               
         #region Выбранный клиент
         private Client selectedClient;
 
@@ -41,7 +45,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             get { return employeeType; }
             set
             {
-                Set(ref employeeType, value, nameof(EmployeeType));                
+                Set(ref employeeType, value, nameof(EmployeeType));
             }
         }
         #endregion
@@ -71,6 +75,25 @@ namespace WPFBankDepartmentMVVM.ViewModels
             }
         }
         #endregion
+
+        #region Список доступных счетов
+        private ObservableCollection<IAccount> allAccounts;
+
+        public ObservableCollection<IAccount> AllAccounts
+        {
+            get { return allAccounts; }
+            set => Set(ref allAccounts, value, nameof(AllAccounts));
+        }
+        #endregion
+
+        #region Флаг проверки пополнения либо перевода средств
+        // 1 Пополнение депозитного счета
+        // 2 Пополнение дебетового счета
+        // 3 Перевод с депозитного счета
+        // 4 Перевод с дебетового счета
+        private byte TopUpDeposit = 0;
+        #endregion
+
 
         #endregion
 
@@ -112,6 +135,30 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Закрытие депозитного счета
+        public ICommand CloseDepositAccountCommand { get; }
+        private bool CanCloseDepositAccountCommandExecute(object p) => selectedClient.DepositAccount != null;
+
+        private void OnCloseDepositAccountCommandExecuted(object p)
+        {
+            DepositAccountData = "Счет отсутствует";
+            uint sum = selectedClient.DepositAccount.GetAvaibleValue();
+            if (sum > 0)
+            {
+                selectedClient.DepositAccount.TransferMoneyPayment(sum);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, (int)-sum, EmployeeType));
+                if (selectedClient.NonDepositAccount != null)
+                {
+                    selectedClient.NonDepositAccount.TransferMoneyReceiving(sum);
+                    _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, (int)sum, EmployeeType));
+                }
+            }
+            _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, EmployeeType, false));
+            selectedClient.DepositAccount = null;
+            _MessageBus.Send(selectedClient);
+        }
+        #endregion
+
         #region Открытие недепозитного счета
         public ICommand OpenNonDepositAccountCommand { get; }
         private bool CanOpenNonDepositAccountCommandExecute(object p) => selectedClient.NonDepositAccount == null;
@@ -122,6 +169,98 @@ namespace WPFBankDepartmentMVVM.ViewModels
             NonDepositAccountData = GetAccountData(selectedClient.NonDepositAccount);
             _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, EmployeeType, true));
             _MessageBus.Send(selectedClient);
+        }
+        #endregion
+
+        #region Закрытие дебетового счета
+        public ICommand CloseNonDepositAccountCommand { get; }
+        private bool CanCloseNonDepositAccountCommandExecute(object p) => SelectedClient.NonDepositAccount != null;
+
+        private void OnCloseNonDepositAccountCommandExecuted(object p)
+        {
+            NonDepositAccountData = "Счет отсутствует";
+            uint sum = SelectedClient.NonDepositAccount.GetAvaibleValue();
+            if (sum > 0)
+            {
+                SelectedClient.NonDepositAccount.TransferMoneyPayment(sum);
+                _MessageBus.Send(new ClientFinanceChanges(SelectedClient.NonDepositAccount, (int)-sum, EmployeeType));
+                if (SelectedClient.DepositAccount != null)
+                {
+                    SelectedClient.DepositAccount.TransferMoneyReceiving(sum);
+                    _MessageBus.Send(new ClientFinanceChanges(SelectedClient.DepositAccount, (int)sum, EmployeeType));
+                }
+            }
+            _MessageBus.Send(new ClientFinanceChanges(SelectedClient.NonDepositAccount, EmployeeType, false));
+            SelectedClient.NonDepositAccount = null;
+            _MessageBus.Send(selectedClient);
+        }
+        #endregion
+
+        #region Пополнение счетов
+        public ICommand TopUpAccountCommand { get; }
+        private bool CanTopUpAccountCommandExecute(object p)
+        {
+            if (p is DepositAccount) return SelectedClient.DepositAccount != null;
+            if (p is NonDepositAccount) return SelectedClient.NonDepositAccount != null;
+            return false;
+        }
+
+        private void OnTopUpAccountCommandExecuted(object p)
+        {
+            _UserDialog.CreateTopUpOrTransferToYourselfWindow();
+            _MessageBus.Send((uint)0);
+            if (p is DepositAccount) TopUpDeposit = 1; 
+            if (p is NonDepositAccount) TopUpDeposit = 2;
+            _UserDialog.OpenTopUpOrTransferToYourselfWindow();
+        }
+        #endregion
+
+        #region Перевод между своими счетами
+        public ICommand TransferToYourselfCommand { get; }
+        private bool CanTransferToYourselfCommandExecute(object p)
+        {
+            if (SelectedClient.DepositAccount != null && SelectedClient.NonDepositAccount != null)
+            {
+                if (p is DepositAccount) return SelectedClient.DepositAccount.GetAvaibleValue() > 0;
+                if (p is NonDepositAccount) return SelectedClient.NonDepositAccount.GetAvaibleValue() > 0;
+            }
+            return false;
+        }
+
+        private void OnTransferToYourselfCommandExecuted(object p)
+        {
+            _UserDialog.CreateTopUpOrTransferToYourselfWindow();
+            
+            if (p is DepositAccount)
+            {
+                _MessageBus.Send(SelectedClient.DepositAccount.GetAvaibleValue());
+                TopUpDeposit = 3;
+            }
+            if (p is NonDepositAccount)
+            {
+                _MessageBus.Send(SelectedClient.NonDepositAccount.GetAvaibleValue());
+                TopUpDeposit = 4;
+            }
+            _UserDialog.OpenTopUpOrTransferToYourselfWindow();
+        }
+        #endregion
+
+
+
+        #region Открытие окна для совершения перевода с депозитного счета
+        public ICommand OpenTransferFromDepToOtherCommand { get; }
+        private bool CanOpenTransferFromDepToOtherCommandExecute(object p) => SelectedClient.DepositAccount != null;
+
+        private void OnOpenTransferFromDepToOtherCommandExecuted(object p)
+        {
+            _UserDialog.CreateTransferWindow();
+            ObservableCollection<IAccount> allAccountsForTransferOtherClient = new();
+            foreach (var account in AllAccounts)
+            {
+                if (account.Id != selectedClient.id) allAccountsForTransferOtherClient.Add(account);
+            }
+            _MessageBus.Send(allAccountsForTransferOtherClient);
+            _UserDialog.OpenTransferWindow();
         }
         #endregion
 
@@ -147,6 +286,13 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Метод для передачи между окнами списка счетов        
+        private void OnReciveAccount(ObservableCollection<IAccount> message)
+        {
+            AllAccounts = message;
+        }
+        #endregion
+
         #region Проверка корректонсти ввода полей
         private void CheckClientFields()
         {            
@@ -166,6 +312,62 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Dispose
+        public void Dispose()
+        {
+            _SubscriptionAuth.Dispose();
+            _SubscriptionClient.Dispose();  
+            _SubscriptionAccount.Dispose();
+        }
+        #endregion
+
+        #region Метод для передачи между окнами суммы на счете        
+        private void OnReceiveValue(uint message)
+        {
+            if (TopUpDeposit == 1)
+            {
+                SelectedClient.DepositAccount.TopUpAccount(message);
+                DepositAccountData = GetAccountData(SelectedClient.DepositAccount);
+                TopUpDeposit = 0;
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, (int)message, EmployeeType));
+                _MessageBus.Send(selectedClient);
+            }
+
+            if (TopUpDeposit == 2)
+            {
+                SelectedClient.NonDepositAccount.TopUpAccount(message);
+                NonDepositAccountData = GetAccountData(SelectedClient.NonDepositAccount);
+                TopUpDeposit = 0;
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, (int)message, EmployeeType));
+                _MessageBus.Send(selectedClient);
+            }
+
+            if (TopUpDeposit == 3)
+            {
+                SelectedClient.DepositAccount.TransferMoneyPayment(message);
+                DepositAccountData = GetAccountData(SelectedClient.DepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, (int)-message, EmployeeType));
+                SelectedClient.NonDepositAccount.TransferMoneyReceiving(message);
+                NonDepositAccountData = GetAccountData(SelectedClient.NonDepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, (int)message, EmployeeType));
+                TopUpDeposit = 0;
+                _MessageBus.Send(selectedClient);
+            }
+
+            if (TopUpDeposit == 4)
+            {
+                SelectedClient.NonDepositAccount.TransferMoneyPayment(message);
+                NonDepositAccountData = GetAccountData(SelectedClient.NonDepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, (int)-message, EmployeeType));
+                SelectedClient.DepositAccount.TransferMoneyReceiving(message);
+                DepositAccountData = GetAccountData(SelectedClient.DepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, (int)message, EmployeeType));
+                TopUpDeposit = 0;
+                _MessageBus.Send(selectedClient);
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Конструкторы
@@ -175,6 +377,11 @@ namespace WPFBankDepartmentMVVM.ViewModels
             OpenDepositAccountCommand = new BaseCommand(OnOpenDepositAccountCommandExecuted, CanOpenDepositAccountCommandExecute);
             OpenNonDepositAccountCommand = new BaseCommand(OnOpenNonDepositAccountCommandExecuted, CanOpenNonDepositAccountCommandExecute);
             OpenClienChangedCommand = new BaseCommand(OnOpenClienChangedCommandExecuted, CanOpenClienChangedCommandExecute);
+            OpenTransferFromDepToOtherCommand = new BaseCommand(OnOpenTransferFromDepToOtherCommandExecuted, CanOpenTransferFromDepToOtherCommandExecute);
+            CloseDepositAccountCommand = new BaseCommand(OnCloseDepositAccountCommandExecuted, CanCloseDepositAccountCommandExecute);
+            CloseNonDepositAccountCommand = new BaseCommand(OnCloseNonDepositAccountCommandExecuted, CanCloseNonDepositAccountCommandExecute);
+            TopUpAccountCommand = new BaseCommand(OnTopUpAccountCommandExecuted, CanTopUpAccountCommandExecute);
+            TransferToYourselfCommand = new BaseCommand(OnTransferToYourselfCommandExecuted, CanTransferToYourselfCommandExecute);
         }
 
         public ClientWindowViewModel(IUserDialog userDialog, IMessageBus messageBus) : this()
@@ -183,11 +390,12 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _MessageBus = messageBus;
             _SubscriptionClient = messageBus.RegesterHandler<Client>(OnReceiveClient);
             _SubscriptionAuth = messageBus.RegesterHandler<Employee>(OnReceiveEmployee);
-        }
-
+            _SubscriptionAccount = messageBus.RegesterHandler<ObservableCollection<IAccount>>(OnReciveAccount);
+            _SubscriptionValue = messageBus.RegesterHandler<uint>(OnReceiveValue);
+        } 
         #endregion
 
 
-        
+
     }
 }

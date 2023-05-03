@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using WPFBankDepartmentMVVM.Command.Base;
+using WPFBankDepartmentMVVM.Models.AccountBase;
 using WPFBankDepartmentMVVM.Models.ClientBase;
 using WPFBankDepartmentMVVM.Models.EmployeeBase;
 using WPFBankDepartmentMVVM.Services;
@@ -111,7 +112,15 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
-        
+        #region Список доступных счетов
+        private ObservableCollection<IAccount> allAccounts;
+
+        public ObservableCollection<IAccount> AllAccounts
+        {
+            get { return allAccounts; }
+            set => Set(ref allAccounts, value, nameof(AllAccounts));
+        }
+        #endregion
 
         #endregion
 
@@ -159,6 +168,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _UserDialog.CreateClientWindow();
             _MessageBus.Send((Client)p);
             _MessageBus.Send(EmployeeType);
+            _MessageBus.Send(AllAccounts);
             SelectedClient = (Client)p;
             _UserDialog.OpenClientWindow();
             
@@ -226,13 +236,13 @@ namespace WPFBankDepartmentMVVM.ViewModels
             if ( !string.IsNullOrEmpty(line))
             {
                 result = line.Split('#');
-                workClientsList[index].DepositAccount = new(result[0], uint.Parse(result[1]));
+                workClientsList[index].DepositAccount = new(int.Parse(result[0]), result[1], uint.Parse(result[2]));
             }
             line = sr.ReadLine();
             if (!string.IsNullOrEmpty(line))
             {
                 result = line.Split('#');
-                workClientsList[index].NonDepositAccount = new(result[0], uint.Parse(result[1]));
+                workClientsList[index].NonDepositAccount = new(int.Parse(result[0]), result[1], uint.Parse(result[2]));
             }
             sr.Close();
         }
@@ -242,6 +252,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private ObservableCollection<Client> GetViewClientList()
         {
             int i = 0;
+            allAccounts = new();
             viewClientList = new ObservableCollection<Client>();
             string consultantPassportView = "*********";
             if (employeeType is Consultant)
@@ -250,8 +261,16 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 {
                     viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, consultantPassportView, client.ClientChanges));
-                    viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
-                    viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;
+                    if (workClientsList[i].DepositAccount != null)
+                    {
+                        AllAccounts.Add(workClientsList[i].DepositAccount);
+                        viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
+                    }
+                    if (workClientsList[i].NonDepositAccount != null)
+                    {
+                        AllAccounts.Add(workClientsList[i].NonDepositAccount);
+                        viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;                        
+                    }
                     i++;
                 }
             }
@@ -261,8 +280,16 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 {
                     viewClientList.Add(new Client(client.id, client.lastName,
                         client.firstName, client.middleName, client.phoneNumber, client.passportNumber, client.ClientChanges));
-                    viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
-                    viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;
+                    if (workClientsList[i].DepositAccount != null)
+                    {
+                        AllAccounts.Add(workClientsList[i].DepositAccount);
+                        viewClientList[i].DepositAccount = workClientsList[i].DepositAccount;
+                    }
+                    if (workClientsList[i].NonDepositAccount != null)
+                    {
+                        AllAccounts.Add(workClientsList[i].NonDepositAccount);
+                        viewClientList[i].NonDepositAccount = workClientsList[i].NonDepositAccount;
+                    }
                     i++;
                 }
             }
@@ -320,6 +347,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 workClientsList[i].DepositAccount = message.DepositAccount;
                 workClientsList[i].NonDepositAccount = message.NonDepositAccount;
                 PrintClientFinanceInFile(workClientsList[i]);
+                clientIsChanged = true;
                 return;
             }
         }
@@ -395,8 +423,10 @@ namespace WPFBankDepartmentMVVM.ViewModels
             var sw = new StreamWriter($@"ClientFinance\Finance_{client.id}.txt");
             string strDeposit = null;
             string strNonDeposit = null;
-            if (client.DepositAccount != null) strDeposit = $"{client.DepositAccount.name}#{client.DepositAccount.GetValue()}";
-            if (client.NonDepositAccount != null) strNonDeposit = $"{client.NonDepositAccount.name}#{client.NonDepositAccount.GetValue()}";            
+            if (client.DepositAccount != null) strDeposit = $"{client.DepositAccount.Id}#" +
+                    $"{client.DepositAccount.name}#{client.DepositAccount.GetValue()}";
+            if (client.NonDepositAccount != null) strNonDeposit = $"{client.NonDepositAccount.Id}#" +
+                    $"{client.NonDepositAccount.name}#{client.NonDepositAccount.GetValue()}";            
             sw.WriteLine(strDeposit);
             sw.WriteLine(strNonDeposit);
             sw.Close();
@@ -426,7 +456,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
             }
             PrintInFile();
             GetViewClientList();
-            if (File.Exists($@"Changes_{client.id}.txt")) File.Delete($@"Changes_{client.id}.txt");
+            if (File.Exists($@"ClientChanges\Changes_{client.id}.txt")) File.Delete($@"ClientChanges\Changes_{client.id}.txt");
+            if (File.Exists($@"ClientFinance\Finance_{client.id}.txt")) File.Delete($@"ClientFinance\Finance_{client.id}.txt");
         }
         #endregion
 

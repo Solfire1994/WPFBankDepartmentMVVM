@@ -1,0 +1,25 @@
+﻿<Window x:Class="WPFBankDepartmentMVVM.View.TopUpOrTransferToYourself"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"        
+        d:DataContext="{d:DesignInstance vm:TopUpOrTransferToYourselfViewModel, IsDesignTimeCreatable=True}"
+        mc:Ignorable="d"
+        Title="{Binding Title, UpdateSourceTrigger=PropertyChanged}" MaxHeight="200" MaxWidth="400" MinWidth="400" MinHeight="200" FontSize="15">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding StatusBar, UpdateSourceTrigger=PropertyChanged}" 
+                   VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
+        <Border Grid.Row="1" BorderBrush="Red" BorderThickness="{Binding CorrectWeight, UpdateSourceTrigger=PropertyChanged}" Margin="5">
+        <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"  
+                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderThickness="0"/>
+        </Border>
+        <Button Grid.Row="2" Content="{Binding ButtonBar, UpdateSourceTrigger=PropertyChanged}"
+                Command="{Binding Command}" Margin="5, 10"/>
+    </Grid>
+</Window>

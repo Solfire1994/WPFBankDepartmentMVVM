@@ -8,11 +8,7 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
         private readonly uint comission = 4;
         public string name { get; private set; }
         private uint value;
-
-        public void CloseAccount()
-        {
-            throw new NotImplementedException();
-        }
+        public int Id { get; private set; }
 
         public uint GetAvaibleValue()
         {
@@ -41,11 +37,13 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
 
         public NonDepositAccount(int id)
         {
+            Id = id;
             name = $"Дебетовый счет № {id + 200000}";
         }
 
-        public NonDepositAccount(string name, uint value)
+        public NonDepositAccount(int id, string name, uint value)
         {
+            Id = id;
             this.name = name;
             this.value = value;
         }

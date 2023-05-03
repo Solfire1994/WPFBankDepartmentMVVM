@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFBankDepartmentMVVM.View"
+        xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
+        d:DataContext="{d:DesignInstance vm:TransferWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Title="Window1" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14">
     <Grid>
@@ -22,7 +24,13 @@
         <Label Content="Клиент" Grid.Column="0" Grid.Row="1"/>
         <ComboBox Grid.Column="1" Grid.Row="1"></ComboBox>
         <Label Content="Тип счета" Grid.Column="0" Grid.Row="2"/>
-        <ComboBox Grid.Column="1" Grid.Row="2"></ComboBox>
+        <ComboBox Grid.Column="1" Grid.Row="2"  ItemsSource="{Binding AllAccounts, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
         <Label Content="Сумма" Grid.Column="0" Grid.Row="3"/>
         <TextBox Grid.Column="1" Grid.Row="3"/>
         <Button Content="Перевести" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Margin="5"/>

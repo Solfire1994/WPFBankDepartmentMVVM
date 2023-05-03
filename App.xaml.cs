@@ -24,6 +24,7 @@ namespace WPFBankDepartmentMVVM
             services.AddScoped<ChangingLogViewModel>();
             services.AddScoped<ClientWindowViewModel>();
             services.AddScoped<TransferWindowViewModel>();
+            services.AddScoped<TopUpOrTransferToYourselfViewModel>();
 
             services.AddSingleton<IUserDialog, UserDialogService>();
             services.AddSingleton<IMessageBus, MessageBusService>();
@@ -84,6 +85,17 @@ namespace WPFBankDepartmentMVVM
                     var scope = s.CreateScope();
                     var model = scope.ServiceProvider.GetRequiredService<TransferWindowViewModel>();
                     var window = new TransferWindow { DataContext = model };
+                    model.DialogComplete += (_, _) => window.Close();
+                    window.Closed += (_, _) => scope.Dispose();
+                    return window;
+                });
+
+            services.AddTransient(
+                s =>
+                {
+                    var scope = s.CreateScope();
+                    var model = scope.ServiceProvider.GetRequiredService<TopUpOrTransferToYourselfViewModel>();
+                    var window = new TopUpOrTransferToYourself { DataContext = model };
                     model.DialogComplete += (_, _) => window.Close();
                     window.Closed += (_, _) => scope.Dispose();
                     return window;

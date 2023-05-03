@@ -114,5 +114,23 @@ namespace WPFBankDepartmentMVVM.Services.Implementations
         }
         #endregion
 
+        #region TopUpOrTransferToYourself
+        private TopUpOrTransferToYourself? _TopUpOrTransferToYourself;
+        public void CreateTopUpOrTransferToYourselfWindow()
+        {
+            if (_TopUpOrTransferToYourself is { } window)
+            {
+                window.ShowDialog();
+                return;
+            }
+            window = _Servises.GetRequiredService<TopUpOrTransferToYourself>();
+            window.Closed += (_, _) => _TopUpOrTransferToYourself = null;
+            _TopUpOrTransferToYourself = window;
+        }
+        public void OpenTopUpOrTransferToYourselfWindow()
+        {
+            _TopUpOrTransferToYourself.ShowDialog();
+        }
+        #endregion
     }
 }
