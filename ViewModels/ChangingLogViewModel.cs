@@ -8,7 +8,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class ChangingLogViewModel : DialogViewModel
+    internal class ChangingLogViewModel : DialogViewModel, IDisposable
     {
         private readonly IDisposable _SubscriptionClientChanges = null!;
         #region Свойство, коллекция изменений

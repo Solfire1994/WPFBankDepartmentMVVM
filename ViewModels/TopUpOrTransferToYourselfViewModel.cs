@@ -67,6 +67,16 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Обозначение проверки корректности ввода
+        private Thickness correctWeight;
+
+        public Thickness CorrectWeight
+        {
+            get { return correctWeight; }
+            set => Set(ref correctWeight, value, nameof(CorrectWeight));
+        }
+        #endregion
+
         #region Перечислить
         public ICommand Command { get; }
         private bool CanCommandExecute(object p) => IsValueCorrect;
@@ -119,15 +129,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
             }
 
         }
-
-        private Thickness correctWeight;
-
-        public Thickness CorrectWeight
-        {
-            get { return correctWeight; }
-            set => Set(ref correctWeight, value, nameof(CorrectWeight));
-        }
         #endregion
+
 
         public TopUpOrTransferToYourselfViewModel()
         {

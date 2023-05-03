@@ -42,6 +42,13 @@ namespace WPFBankDepartmentMVVM.Models.AccountBase
             name = $"Депозитный счет № {id + 100000}";
         }
 
+        public DepositAccount(int id, uint value) : this(id)
+        {
+            Id = id;
+            name = $"Депозитный счет № {id + 100000}";
+            this.value = value;
+        }
+
         public DepositAccount(int id, string name, uint value)
         {
             Id = id;

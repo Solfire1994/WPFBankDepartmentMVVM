@@ -97,7 +97,9 @@
                                 <Button Content="Перевести на дебетовый счет" Margin="5, 10, 5, 10" Command="{Binding TransferToYourselfCommand}"
                                         CommandParameter="{Binding SelectedClient.DepositAccount, UpdateSourceTrigger=PropertyChanged}"/>                                
                             </UniformGrid>
-                            <Button Grid.Row="3" Content="Перевести на депозитный счет другому клиенту" Margin="5, 10, 5, 5" Command="{Binding OpenTransferWindowCommand}"/>
+                            <Button Grid.Row="3" Content="Перевести на счет другому клиенту" Margin="5, 10, 5, 5" 
+                                    Command="{Binding OpenTransferToOtherCommand}"
+                                    CommandParameter="{Binding SelectedClient.DepositAccount, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                 </Border>
                 <Border BorderBrush="Black" Margin="5" BorderThickness="1">
@@ -120,7 +122,9 @@
                                 <Button Content="Перевести на депозитный счет" Margin="5, 10, 5, 10" Command="{Binding TransferToYourselfCommand}"
                                         CommandParameter="{Binding SelectedClient.NonDepositAccount, UpdateSourceTrigger=PropertyChanged}"/>
                             </UniformGrid>
-                            <Button Grid.Row="3" Content="Перевести на дебетовый счет другому клиенту" Margin="5, 10, 5, 5"/>
+                            <Button Grid.Row="3" Content="Перевести на счет другому клиенту" Margin="5, 10, 5, 5"
+                                    Command="{Binding OpenTransferToOtherCommand}"
+                                    CommandParameter="{Binding SelectedClient.NonDepositAccount, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                     </Border>
             </UniformGrid>

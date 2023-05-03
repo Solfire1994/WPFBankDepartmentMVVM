@@ -36,9 +36,9 @@ namespace WPFBankDepartmentMVVM.Models.ClientBase
 
         public Client()
         {
-            lastName = "Список клиентов пуст,";
-            firstName = "менеджеру необходимо";
-            middleName = "добавить новых клиентов";
+            lastName = "Список клиентов пуст, менед";
+            firstName = "жеру необходимо добавить";
+            middleName = "новых клиентов";
         }
 
         public Client(int id, string lastName, string firstName, string middleName, string phoneNumber, string passportNumber)

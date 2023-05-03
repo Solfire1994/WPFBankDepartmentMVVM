@@ -7,32 +7,33 @@
         xmlns:vm="clr-namespace:WPFBankDepartmentMVVM.ViewModels"
         d:DataContext="{d:DesignInstance vm:TransferWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-        Title="Window1" MinHeight="550" MinWidth="350" MaxWidth="450" FontSize="14">
+        Title="Окно перевода другому клиенту" MinHeight="250" MaxHeight="250" MinWidth="450" MaxWidth="450" FontSize="14">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="0.5*"/>
         </Grid.RowDefinitions>
-        <Label Content="Выберите данные клиента, которому необходимо совершить перевод" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"/>
-        <Label Content="Клиент" Grid.Column="0" Grid.Row="1"/>
-        <ComboBox Grid.Column="1" Grid.Row="1"></ComboBox>
-        <Label Content="Тип счета" Grid.Column="0" Grid.Row="2"/>
-        <ComboBox Grid.Column="1" Grid.Row="2"  ItemsSource="{Binding AllAccounts, UpdateSourceTrigger=PropertyChanged}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding name}"/>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-        <Label Content="Сумма" Grid.Column="0" Grid.Row="3"/>
-        <TextBox Grid.Column="1" Grid.Row="3"/>
-        <Button Content="Перевести" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Margin="5"/>
+        <GroupBox Grid.Row="0" Header="Выберите счет, на который необходимо совершить перевод" Margin="5">
+            <GroupItem>
+                <ComboBox ItemsSource="{Binding AllAccounts, UpdateSourceTrigger=PropertyChanged}" 
+                          SelectedItem="{Binding SelectedAccount, UpdateSourceTrigger=PropertyChanged}"
+                          Margin=" 0, 10">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </GroupItem>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="{Binding StatusBar, UpdateSourceTrigger=PropertyChanged}" Margin="5">
+            <GroupItem>
+                <Border BorderBrush="Red" BorderThickness="{Binding CorrectWeight, UpdateSourceTrigger=PropertyChanged}" Margin="0, 10">
+                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0"/>
+                </Border>
+            </GroupItem>
+        </GroupBox>        
+        <Button Content="Перевести" Grid.Row="2" Margin="5, 10" Command="{Binding TransferCommand}"/>
     </Grid>
 </Window>

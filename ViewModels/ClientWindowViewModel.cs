@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using WPFBankDepartmentMVVM.Command.Base;
 using WPFBankDepartmentMVVM.Models.AccountBase;
@@ -11,7 +10,7 @@ using WPFBankDepartmentMVVM.ViewModels.Base;
 
 namespace WPFBankDepartmentMVVM.ViewModels
 {
-    internal class ClientWindowViewModel : DialogViewModel
+    internal class ClientWindowViewModel : DialogViewModel, IDisposable
     {
         #region Поля и свойства
 
@@ -77,7 +76,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #endregion
 
         #region Список доступных счетов
-        private ObservableCollection<IAccount> allAccounts;
+        private ObservableCollection<IAccount> allAccounts = new();
 
         public ObservableCollection<IAccount> AllAccounts
         {
@@ -245,21 +244,36 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Открытие окна для совершения перевода другому клиенту
+        public ICommand OpenTransferToOtherCommand { get; }
+        private bool CanOpenTransferToOtherCommandExecute(object p)
+        {
+            if(AllAccounts.Count == 0) return false;
+            if (p is DepositAccount && SelectedClient.DepositAccount != null)
+            { 
+                return SelectedClient.DepositAccount.GetAvaibleValue() > 0; 
+            }
+            if (p is NonDepositAccount && SelectedClient.NonDepositAccount != null)
+            {
+                return SelectedClient.NonDepositAccount.GetAvaibleValue() > 0;
+            }
+            return false;            
+        }
 
-
-        #region Открытие окна для совершения перевода с депозитного счета
-        public ICommand OpenTransferFromDepToOtherCommand { get; }
-        private bool CanOpenTransferFromDepToOtherCommandExecute(object p) => SelectedClient.DepositAccount != null;
-
-        private void OnOpenTransferFromDepToOtherCommandExecuted(object p)
+        private void OnOpenTransferToOtherCommandExecuted(object p)
         {
             _UserDialog.CreateTransferWindow();
-            ObservableCollection<IAccount> allAccountsForTransferOtherClient = new();
-            foreach (var account in AllAccounts)
+            _MessageBus.Send(AllAccounts);
+            if (p is DepositAccount)
             {
-                if (account.Id != selectedClient.id) allAccountsForTransferOtherClient.Add(account);
+                _MessageBus.Send(SelectedClient.DepositAccount.GetAvaibleValue());
+                TopUpDeposit = 5;
             }
-            _MessageBus.Send(allAccountsForTransferOtherClient);
+            if (p is NonDepositAccount)
+            {
+                _MessageBus.Send(SelectedClient.NonDepositAccount.GetAvaibleValue());
+                TopUpDeposit = 6;
+            }
             _UserDialog.OpenTransferWindow();
         }
         #endregion
@@ -289,7 +303,11 @@ namespace WPFBankDepartmentMVVM.ViewModels
         #region Метод для передачи между окнами списка счетов        
         private void OnReciveAccount(ObservableCollection<IAccount> message)
         {
-            AllAccounts = message;
+            foreach (var account in message)
+            {
+                if (account.Id != selectedClient.id) AllAccounts.Add(account);
+            }
+            _SubscriptionAccount.Dispose();
         }
         #endregion
 
@@ -316,8 +334,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
         public void Dispose()
         {
             _SubscriptionAuth.Dispose();
-            _SubscriptionClient.Dispose();  
-            _SubscriptionAccount.Dispose();
+            _SubscriptionClient.Dispose();
+            _SubscriptionValue.Dispose();
         }
         #endregion
 
@@ -365,6 +383,24 @@ namespace WPFBankDepartmentMVVM.ViewModels
                 TopUpDeposit = 0;
                 _MessageBus.Send(selectedClient);
             }
+
+            if (TopUpDeposit == 5)
+            {
+                SelectedClient.DepositAccount.TransferMoneyPayment(message);
+                DepositAccountData = GetAccountData(SelectedClient.DepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.DepositAccount, (int)-message, EmployeeType));                
+                TopUpDeposit = 0;
+                _MessageBus.Send(selectedClient);
+            }
+
+            if (TopUpDeposit == 6)
+            {
+                SelectedClient.NonDepositAccount.TransferMoneyPayment(message);
+                NonDepositAccountData = GetAccountData(SelectedClient.NonDepositAccount);
+                _MessageBus.Send(new ClientFinanceChanges(selectedClient.NonDepositAccount, (int)-message, EmployeeType));
+                TopUpDeposit = 0;
+                _MessageBus.Send(selectedClient);
+            }
         }
         #endregion
 
@@ -377,7 +413,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             OpenDepositAccountCommand = new BaseCommand(OnOpenDepositAccountCommandExecuted, CanOpenDepositAccountCommandExecute);
             OpenNonDepositAccountCommand = new BaseCommand(OnOpenNonDepositAccountCommandExecuted, CanOpenNonDepositAccountCommandExecute);
             OpenClienChangedCommand = new BaseCommand(OnOpenClienChangedCommandExecuted, CanOpenClienChangedCommandExecute);
-            OpenTransferFromDepToOtherCommand = new BaseCommand(OnOpenTransferFromDepToOtherCommandExecuted, CanOpenTransferFromDepToOtherCommandExecute);
+            OpenTransferToOtherCommand = new BaseCommand(OnOpenTransferToOtherCommandExecuted, CanOpenTransferToOtherCommandExecute);
             CloseDepositAccountCommand = new BaseCommand(OnCloseDepositAccountCommandExecuted, CanCloseDepositAccountCommandExecute);
             CloseNonDepositAccountCommand = new BaseCommand(OnCloseNonDepositAccountCommandExecuted, CanCloseNonDepositAccountCommandExecute);
             TopUpAccountCommand = new BaseCommand(OnTopUpAccountCommandExecuted, CanTopUpAccountCommandExecute);
@@ -394,8 +430,5 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _SubscriptionValue = messageBus.RegesterHandler<uint>(OnReceiveValue);
         } 
         #endregion
-
-
-
     }
 }

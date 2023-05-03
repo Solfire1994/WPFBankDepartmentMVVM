@@ -25,6 +25,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
         private readonly IDisposable _SubscriptionAuth = null!;
         private readonly IDisposable _SubscriptionClient = null!;
         private readonly IDisposable _SubscriptionClientChanges = null!;
+        private readonly IDisposable _SubscriptionAccount = null!;
         private int maxClientID = 0;
         private bool clientIsChanged = true;
 
@@ -440,6 +441,7 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _SubscriptionAuth.Dispose();
             _SubscriptionClient.Dispose();
             _SubscriptionClientChanges.Dispose();
+            _SubscriptionAccount.Dispose();
         }
         #endregion
 
@@ -538,6 +540,41 @@ namespace WPFBankDepartmentMVVM.ViewModels
         }
         #endregion
 
+        #region Метод для передачи между окнами измененного счета клиента в системе        
+        private void OnReceiveAccount(IAccount message)
+        {
+            foreach (var account in AllAccounts)
+            {
+                if(account.name == message.name)
+                {
+                    for (int i = 0; i< workClientsList.Count; i++)
+                    {
+                        if (workClientsList[i].id == message.Id)
+                        {
+                            if(message is DepositAccount)
+                            {
+                                workClientsList[i].ClientChanges.Add(new ClientFinanceChanges(message,
+                                    (int)(message.GetValue() - workClientsList[i].DepositAccount.GetValue()), employeeType));
+                                workClientsList[i].DepositAccount = (DepositAccount)message;                                
+                            }
+                            if (message is NonDepositAccount)
+                            {
+                                workClientsList[i].ClientChanges.Add(new ClientFinanceChanges(message,
+                                    (int)(message.GetValue() - workClientsList[i].NonDepositAccount.GetValue()), employeeType));
+                                workClientsList[i].NonDepositAccount = (NonDepositAccount)message;                                
+                            }
+                            PrintChangingInFile(workClientsList[i]);
+                            PrintClientFinanceInFile(workClientsList[i]);
+                            viewClientList = GetViewClientList();
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        #endregion
+
 
 
         #endregion
@@ -560,8 +597,8 @@ namespace WPFBankDepartmentMVVM.ViewModels
             _SubscriptionAuth = messageBus.RegesterHandler<Employee>(OnReceiveEmployee);
             _SubscriptionClient = messageBus.RegesterHandler<Client>(OnReceiveClient);
             _SubscriptionClientChanges = messageBus.RegesterHandler<ClientFinanceChanges>(OnReceiveClientChanges);
+            _SubscriptionAccount = messageBus.RegesterHandler<IAccount>(OnReceiveAccount);
         }
-        #endregion
-        
+        #endregion        
     }
 }
